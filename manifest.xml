@@ -10,6 +10,7 @@
   <url>http://ros.org/wiki/optris_drivers</url>
   <depend package="roscpp"/>
   <depend package="std_msgs"/>
+  <depend package="std_srvs"/>
   <depend package="sensor_msgs"/>
 
 </package>
