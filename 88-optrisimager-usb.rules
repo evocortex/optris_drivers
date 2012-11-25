@@ -1,0 +1,2 @@
+# make optris device mount with writing permissions (default is read only for unknown devices)
+ATTRS{idProduct}=="de37",ATTRS{idVendor}=="0403",MODE="666",GROUP="video"

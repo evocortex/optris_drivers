@@ -1,0 +1,16 @@
+<package>
+  <description brief="optris_thermoimager">
+
+     optris_thermoimager
+
+  </description>
+  <author>Autonohm</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/optris_thermoimager</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+
+</package>
+
+

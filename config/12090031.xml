@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<imager xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<fov>30</fov>
+	<temperature>
+		<min>-20</min>
+		<max>100</max>
+	</temperature>
+	<framerate>30.0</framerate>
+	<controller>1</controller>
+</imager>
