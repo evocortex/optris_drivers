@@ -1,8 +1,6 @@
 #ifndef PIIMAGER_H
 #define PIIMAGER_H
 
-#include "BaseControlDevice.h"
-
 enum EnumControlInterface {HIDController=1, UVCController=2};
 
 namespace optris
@@ -140,8 +138,6 @@ public:
 private:
 
   void init();
-
-  BaseControlDevice* _udev;
 
   unsigned int _widthIn;
 
