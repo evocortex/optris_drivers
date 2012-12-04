@@ -1,13 +1,13 @@
 <package>
-  <description brief="optris_thermoimager">
+  <description brief="Wrapper for Optris thermal imager library">
 
-     optris_thermoimager
+     ROS nodes wrapping the 32-bit binary imager driver for Optris thermal imager devices.
 
   </description>
-  <author>Autonohm</author>
+  <author>Stefan May</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/optris_thermoimager</url>
+  <url>http://ros.org/wiki/optris_drivers</url>
   <depend package="roscpp"/>
   <depend package="std_msgs"/>
 
