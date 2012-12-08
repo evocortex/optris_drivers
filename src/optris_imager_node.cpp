@@ -59,7 +59,7 @@ void onFrame(unsigned short* image, unsigned int w, unsigned int h)
 int main(int argc, char **argv)
 {
 	ros::init (argc, argv, "optris_imager_node");
-	ros::NodeHandle n;
+	ros::NodeHandle n("optris");
 
 	std::string xmlConfig = "";
 	n.getParam("xmlConfig", xmlConfig);
@@ -71,6 +71,7 @@ int main(int argc, char **argv)
 	if(stat(xmlConfig.c_str(), &s) != 0)
 	{
 		std::cerr << "usage: rosrun <package> <node> _xmlConfig:=<xmlConfig>" << std::endl;
+		std::cerr << " verify that <xmlConfig> is existent" << std::endl;
 		return -1;
 	}
 
