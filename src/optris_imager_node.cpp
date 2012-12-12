@@ -59,12 +59,10 @@ void onFrame(unsigned short* image, unsigned int w, unsigned int h)
 int main(int argc, char **argv)
 {
 	ros::init (argc, argv, "optris_imager_node");
-	ros::NodeHandle n("optris");
+	ros::NodeHandle n_("~");
 
 	std::string xmlConfig = "";
-	n.getParam("xmlConfig", xmlConfig);
-
-	std::cout << xmlConfig << std::endl;
+	n_.getParam("xmlConfig", xmlConfig);
 
 	// A specific configuration file for each imager is needed (cf. config directory)
 	struct stat s;
@@ -74,6 +72,8 @@ int main(int argc, char **argv)
 		std::cerr << " verify that <xmlConfig> is existent" << std::endl;
 		return -1;
 	}
+
+	ros::NodeHandle n;
 
 	optris::PIImager imager(xmlConfig.c_str());
 
@@ -98,11 +98,11 @@ int main(int argc, char **argv)
 	// loop over acquire-process-release-publish steps
 	// Images are published in raw format (unsigned short, see onFrame callback for details)
 	unsigned int i = 0;
+	ros::Rate r(10);
 	while (ros::ok())
 	{
 		imager.getFrame(bufferRaw);
 		imager.process(bufferRaw);
-		imager.releaseFrame();
 
 		ros::spinOnce();
 		img.header.seq   = i++;
@@ -111,6 +111,9 @@ int main(int argc, char **argv)
 		memcpy(&img.data[0], _thermal_image, img.height*img.width*sizeof(*_thermal_image));
 
 		img_pub.publish(img);
+
+		imager.releaseFrame();
+        r.sleep();
 	}
 
 	delete [] bufferRaw;

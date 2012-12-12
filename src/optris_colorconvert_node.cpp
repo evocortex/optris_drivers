@@ -81,7 +81,7 @@ void onDataReceive(const sensor_msgs::Image& image)
 int main (int argc, char* argv[])
 {
 	ros::init (argc, argv, "optris_colorconvert_node");
-	ros::NodeHandle n("optris");
+	ros::NodeHandle n;
 
 	int palette = 6;
 	n.getParam("palette", palette);
