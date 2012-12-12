@@ -43,28 +43,37 @@
 
 #include <sys/stat.h>
 
-unsigned short* _thermal_image;
-
+sensor_msgs::Image _thermal_image;
+ros::Publisher     _img_pub;
+unsigned int       _img_cnt = 0;
 /**
- * Callback method from image processing library
+ * Callback method from image processing library, called with configured frame rate, see xml file
  * @param[in] image thermal image in unsigned short format, i.e., float temperature = ((float)image[i] -1000.f)/10.f)
  * @param[in] w image width
  * @param[in] h image height
  */
 void onFrame(unsigned short* image, unsigned int w, unsigned int h)
 {
-	memcpy(_thermal_image, image, w*h*sizeof(*_thermal_image));
+	memcpy(&_thermal_image.data[0], image, w*h*sizeof(*image));
+
+	_thermal_image.header.seq   = _img_cnt++;
+	_thermal_image.header.stamp = ros::Time::now();
+
+	_img_pub.publish(_thermal_image);
+	ros::spinOnce();
 }
 
 int main(int argc, char **argv)
 {
 	ros::init (argc, argv, "optris_imager_node");
+
+	// private node handle to support command line parameters for rosrun
 	ros::NodeHandle n_("~");
 
 	std::string xmlConfig = "";
 	n_.getParam("xmlConfig", xmlConfig);
 
-	// A specific configuration file for each imager is needed (cf. config directory)
+	// A specific configuration file for each imager device is needed (cf. config directory)
 	struct stat s;
 	if(stat(xmlConfig.c_str(), &s) != 0)
 	{
@@ -77,45 +86,33 @@ int main(int argc, char **argv)
 
 	optris::PIImager imager(xmlConfig.c_str());
 
-	ros::Publisher img_pub = n.advertise<sensor_msgs::Image>("thermal_image" , 1);
-	ros::Rate loop_rate(imager.getFramerate());
+	_img_pub = n.advertise<sensor_msgs::Image>("thermal_image" , 1);
 
 	unsigned char* bufferRaw = new unsigned char[imager.getRawBufferSize()];
-	_thermal_image           = new unsigned short[imager.getWidth() * imager.getHeight()];
 
 	imager.setFrameCallback(onFrame);
 
-	sensor_msgs::Image img;
-	img.header.frame_id = "thermal_image";
-	img.height          = imager.getHeight();
-	img.width 	        = imager.getWidth();
-	img.encoding        = "mono16";
-	img.step		    = img.width*2;
-	img.data.resize(img.height*img.step);	
+	_thermal_image.header.frame_id = "thermal_image";
+	_thermal_image.height          = imager.getHeight();
+	_thermal_image.width 	       = imager.getWidth();
+	_thermal_image.encoding        = "mono16";
+	_thermal_image.step		       = _thermal_image.width*2;
+	_thermal_image.data.resize(_thermal_image.height*_thermal_image.step);
 
 	imager.startStreaming();
 
 	// loop over acquire-process-release-publish steps
 	// Images are published in raw format (unsigned short, see onFrame callback for details)
-	unsigned int i = 0;
-	ros::Rate r(10);
+	ros::Rate loop_rate(imager.getMaxFramerate());
 	while (ros::ok())
 	{
 		imager.getFrame(bufferRaw);
 		imager.process(bufferRaw);
-
-		ros::spinOnce();
-		img.header.seq   = i++;
-		img.header.stamp = ros::Time::now();
-
-		memcpy(&img.data[0], _thermal_image, img.height*img.width*sizeof(*_thermal_image));
-
-		img_pub.publish(img);
-
 		imager.releaseFrame();
-        r.sleep();
+		loop_rate.sleep();
 	}
 
 	delete [] bufferRaw;
-	delete [] _thermal_image;
+
+	return 0;
 }

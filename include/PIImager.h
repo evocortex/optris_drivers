@@ -59,16 +59,33 @@ public:
   unsigned int getHeight();
 
   /**
-   * Get frame rate
+   * Get configured frame rate
    * return framerate (in frames/second)
    */
   float getFramerate();
 
   /**
+   * Get maximum frame rate of device
+   * return framerate (in frames/second)
+   */
+  float getMaxFramerate();
+  /**
    * Get raw image size (includes meta data)
    * @return Number of bytes
    */
   unsigned int getRawBufferSize();
+
+  /**
+   * Get lower limit of temperature range
+   * @return lower limit
+   */
+  int getTemperatureRangeMin();
+
+  /**
+   * Get upper limit of temperature range
+   * @return upper limit
+   */
+  int getTemperatureRangeMax();
 
   /**
    * Get raw image (needs to be processed to get thermal data)
@@ -106,7 +123,7 @@ public:
    * Get framrate calculated over the last 10 frames
    * @return Framerate in frames/second
    */
-  double getAverageFramerate();
+  float getAverageFramerate();
 
   /**
    * Process raw data
@@ -158,6 +175,8 @@ private:
   int _tMax;
 
   float _framerate;
+
+  float _maxFramerate;
 
   unsigned long _serial;
 

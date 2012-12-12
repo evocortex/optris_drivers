@@ -16,6 +16,13 @@ enum EnumOptrisColoringPalette{eAlarmBlue   = 1,
 							   eRainbowHi   = 10,
 							   eAlarmRed    = 11};
 
+enum EnumOptrisPaletteScalingMethod{eManual = 1,
+									eMinMax = 2,
+									eSigma1 = 3,
+									eSigma3 = 4};
+
+typedef unsigned char (*paletteTable)[3];
+
 /**
  * Image creation module for displaying purposes
  * @author Stefan May
@@ -34,17 +41,35 @@ public:
   ~ImageBuilder();
 
   /**
-   * Set fixed temperature range
+   * Set temperature range for manual scaling method
    * @param[in] min Lower limit in °C
    * @param[in] max Upper limit in °C
    */
-  void setTemperatureRange(float min, float max);
+  void setManualTemperatureRange(float min, float max);
 
   /**
-   * Activate/Deactivate dynamic scaling of temperature range
-   * @param[in] dynamicScale Dynamic scaling flag
+   * Get minimum temperature used to scale image
+   * @return Temperature in °C
    */
-  void setDynamicScaling(bool dynamicScale);
+  float getIsothermalMin();
+
+  /**
+   * Get maximum temperature used to scale image
+   * @return Temperature in °C
+   */
+  float getIsothermalMax();
+
+  /**
+   * Scaling method of color conversion
+   * @param[in] method Scaling method
+   */
+  void setPaletteScalingMethod(EnumOptrisPaletteScalingMethod method);
+
+  /**
+   * Accessor for activated color conversion mode
+   * @return Scaling method
+   */
+  EnumOptrisPaletteScalingMethod getPaletteScalingMethod();
 
   /**
    * Set the size of Imager-Matrix
@@ -61,13 +86,39 @@ public:
   unsigned int getStride(void);
 
   /**
-   * Image conversion to rgb
-   * @param[in] src Source image (short-Format)
-   * @param[in] size Size of src image, buffer of dst image must be 3*size
-   * @param[out] dst Destination image
+   * Set palette for color conversion
    * @param[in] palette coloring palette
    */
-  void convertTemperatureToPalette(unsigned short* src, unsigned char* dst, EnumOptrisColoringPalette palette);
+  void setPalette(EnumOptrisColoringPalette palette);
+
+  /**
+   * Get palette for color conversion
+   * return coloring palette
+   */
+  EnumOptrisColoringPalette getPalette();
+
+  /**
+   * Get palette table for color conversion
+   * @return coloring palette table as rgb triple
+   */
+  void getPaletteTable(paletteTable& table);
+
+  /**
+   * Image conversion to rgb
+   * @param[in] src Source image (short-Format)
+   * @param[out] dst Destination image
+   */
+  void convertTemperatureToPalette(unsigned short* src, unsigned char* dst);
+
+  /**
+   * calculate histogram
+   * @param[in] src source data, i.e. temperature data
+   * @param[out] hist histogram
+   * @param[in] histsize number of quantization steps
+   * @param[in] tMin minimum temperature
+   * @param[in] tMax maximum temperature
+   */
+  void calcHistogram(unsigned short* src, unsigned int* hist, unsigned int histsize, int tMin, int tMax);
 
   /**
    * Draw crosshair to the center of image
@@ -80,9 +131,22 @@ public:
 private:
 
   /**
-   * Flag indicating a dynamic temperature range scaling for display
+   * Calculate scaling boundaries based on minimal and maximal temperature
+   * @param[in] src Thermal image
    */
-  bool _dynamicScale;
+  void calcMinMaxScalingFactor(unsigned short* src);
+
+  /**
+   * Calculate scaling boundaries based on standard deviation
+   * @param[in] src Thermal image
+   * @param[in] sigma Multiplication factor for sigma range
+   */
+  void calcSigmaScalingFactor(unsigned short* src, float sigma);
+
+  /**
+   * Variable indicating the temperature range scaling method
+   */
+  EnumOptrisPaletteScalingMethod _scalingMethod;
 
   /**
    * Minimum temperature of display range
@@ -98,18 +162,26 @@ private:
    * Real width of Imager-Matrix
    */
   unsigned int _width;
+
   /**
    * Real height of Imager-Matrix
    */
   unsigned int _height;
+
   /**
    * Width including additional pixels in every row of Imager-Matrix to fit the modulo-4-criteria
    */
   unsigned int  _stride;
+
   /**
    * Real size if Imager-Matrix
    */
   unsigned int _size;
+
+  /**
+   * Coloring palette for conversion method
+   */
+  EnumOptrisColoringPalette _palette;
 
 };
 

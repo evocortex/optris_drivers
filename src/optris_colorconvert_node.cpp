@@ -55,7 +55,7 @@ void onDataReceive(const sensor_msgs::Image& image)
 	_iBuilder.setSize(image.width, image.height, false);
 
 	const unsigned char* data = &image.data[0];
-	_iBuilder.convertTemperatureToPalette((unsigned short*)data, _buffer, _palette);
+	_iBuilder.convertTemperatureToPalette((unsigned short*)data, _buffer);
 
 	sensor_msgs::Image img;
 	img.header.frame_id = "thermal_image_view";
@@ -81,29 +81,38 @@ void onDataReceive(const sensor_msgs::Image& image)
 int main (int argc, char* argv[])
 {
 	ros::init (argc, argv, "optris_colorconvert_node");
-	ros::NodeHandle n;
+
+	// private node handle to support command line parameters for rosrun
+	ros::NodeHandle n_("~");
 
 	int palette = 6;
-	n.getParam("palette", palette);
+	n_.getParam("palette", palette);
 	_palette = (optris::EnumOptrisColoringPalette) palette;
 
-	bool dynamic = true;
-	n.getParam("dynamicScale", dynamic);
+	optris::EnumOptrisPaletteScalingMethod scalingMethod = optris::eMinMax;
+	int sm;
+	n_.getParam("paletteScaling", sm);
+	if(sm>=1 && sm <=4) scalingMethod = (optris::EnumOptrisPaletteScalingMethod) sm;
 
-	_iBuilder.setDynamicScaling(dynamic);
+	_iBuilder.setPaletteScalingMethod(scalingMethod);
+	_iBuilder.setPalette(_palette);
 
 	double tMin = 20.;
 	double tMax = 40.;
-	n.getParam("temperatureMin", tMin);
-	n.getParam("temperatureMax", tMax);
-	_iBuilder.setTemperatureRange((float)tMin, (float)tMax);
+	n_.getParam("temperatureMin", tMin);
+	n_.getParam("temperatureMax", tMax);
+	_iBuilder.setManualTemperatureRange((float)tMin, (float)tMax);
 
+	ros::NodeHandle n;
 	ros::Subscriber sub = n.subscribe("thermal_image", 1, onDataReceive);
 	_pub                = n.advertise<sensor_msgs::Image>("thermal_image_view" , 1);
 
+	// specify loop rate a meaningful value according to your publisher configuration
+	ros::Rate loop_rate(30);
 	while (ros::ok())
 	{
         ros::spinOnce();
+        loop_rate.sleep();
 	}
 
 	if(_buffer)	delete [] _buffer;
