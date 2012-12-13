@@ -143,6 +143,19 @@ public:
   void stopRecording();
 
   /**
+   * Set automatic flag activation state. Disabling will prevent camera from getting freezed frequently for several frames.
+   * But temperature data might deviate too much.
+   * @param[in] flag Autmatic flag activation state
+   */
+  void setAutoFlag(bool flag);
+
+  /**
+   * Access automatic flag activation state
+   * @return automatic flag
+   */
+  bool getAutoFlag();
+
+  /**
    * Internal method not to be used from any application!
    */
   void onFrameInit(unsigned int width, unsigned int height);
@@ -183,6 +196,8 @@ private:
   const char* _v4lPath;
 
   EnumControlInterface _controller;
+
+  bool _autoFlag;
 
   int _sim;
 };

@@ -37,6 +37,7 @@
 
 #include "ros/ros.h"
 #include "sensor_msgs/Image.h"
+#include "optris_drivers/AutoFlag.h"
 
 #include "PIImager.h"
 #include "ImageBuilder.h"
@@ -46,6 +47,8 @@
 sensor_msgs::Image _thermal_image;
 ros::Publisher     _img_pub;
 unsigned int       _img_cnt = 0;
+optris::PIImager*  _imager;
+
 /**
  * Callback method from image processing library, called with configured frame rate, see xml file
  * @param[in] image thermal image in unsigned short format, i.e., float temperature = ((float)image[i] -1000.f)/10.f)
@@ -61,6 +64,12 @@ void onFrame(unsigned short* image, unsigned int w, unsigned int h)
 
 	_img_pub.publish(_thermal_image);
 	ros::spinOnce();
+}
+
+bool onAutoFlag(optris_drivers::AutoFlag::Request  &req, optris_drivers::AutoFlag::Response &res)
+{
+	_imager->setAutoFlag(req.autoFlag);
+	return true;
 }
 
 int main(int argc, char **argv)
@@ -84,35 +93,37 @@ int main(int argc, char **argv)
 
 	ros::NodeHandle n;
 
-	optris::PIImager imager(xmlConfig.c_str());
+	_imager = new optris::PIImager(xmlConfig.c_str());
 
+	ros::ServiceServer service = n_.advertiseService("auto_flag", onAutoFlag);
 	_img_pub = n.advertise<sensor_msgs::Image>("thermal_image" , 1);
 
-	unsigned char* bufferRaw = new unsigned char[imager.getRawBufferSize()];
+	unsigned char* bufferRaw = new unsigned char[_imager->getRawBufferSize()];
 
-	imager.setFrameCallback(onFrame);
+	_imager->setFrameCallback(onFrame);
 
 	_thermal_image.header.frame_id = "thermal_image";
-	_thermal_image.height          = imager.getHeight();
-	_thermal_image.width 	       = imager.getWidth();
+	_thermal_image.height          = _imager->getHeight();
+	_thermal_image.width 	       = _imager->getWidth();
 	_thermal_image.encoding        = "mono16";
 	_thermal_image.step		       = _thermal_image.width*2;
 	_thermal_image.data.resize(_thermal_image.height*_thermal_image.step);
 
-	imager.startStreaming();
+	_imager->startStreaming();
 
 	// loop over acquire-process-release-publish steps
 	// Images are published in raw format (unsigned short, see onFrame callback for details)
-	ros::Rate loop_rate(imager.getMaxFramerate());
+	ros::Rate loop_rate(_imager->getMaxFramerate());
 	while (ros::ok())
 	{
-		imager.getFrame(bufferRaw);
-		imager.process(bufferRaw);
-		imager.releaseFrame();
+		_imager->getFrame(bufferRaw);
+		_imager->process(bufferRaw);
+		_imager->releaseFrame();
 		loop_rate.sleep();
 	}
 
 	delete [] bufferRaw;
+	delete _imager;
 
 	return 0;
 }

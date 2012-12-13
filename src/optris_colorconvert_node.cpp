@@ -65,7 +65,6 @@ void onDataReceive(const sensor_msgs::Image& image)
 	img.step		    = image.width*3;
 	img.data.resize(img.height*img.step);
 
-	ros::spinOnce();
 	img.header.seq      = _frame++;
 	img.header.stamp    = ros::Time::now();
 
