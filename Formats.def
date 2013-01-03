@@ -1,0 +1,146 @@
+# This file must not be changed
+
+[ImgProc format definition file]
+Version = 1
+
+# -----------------------------------------------------------------------------
+#       PI
+# -----------------------------------------------------------------------------
+[Format]
+Guid = {7A9AAE14-E7AE-485f-B73A-946F94C061AB}
+Name = "PI 160x120 @ 100Hz"
+Channels = 1
+In = 164 120 100
+Out = 160 120 100
+SFrames = 1
+Def = (0 1 m:2)(0 1 s:3 d:160 s:5 d:160)(328 59 s:2 d:160 s:5 d:160 s:1)
+[Format end]
+# -----------------------------------------------------------------------------
+#       PI160
+# -----------------------------------------------------------------------------
+[Format]
+Guid = {7A9AAE14-E7AE-485f-B73A-946F94C06100}
+Name = "PI160 160x120 @ 120Hz"
+Channels = 1
+In = 160 121 120
+Out = 160 120 120
+SFrames = 1
+Def = (0 120 d:160)(19200 1 m:160)
+[Format end]
+# -----------------------------------------------------------------------------
+#       PI200
+# -----------------------------------------------------------------------------
+[Format]
+Guid = {80DDA89F-3967-4e88-951E-466A912A3C57}
+Name = "PI200 IR=160x120@96Hz, Vis=640x480@32Hz"
+Channels = 2
+In = 764 480 32
+#IR:
+Out = 160 120 96
+SFrames = 3
+Def = (     0 160 s:640 d:120 s:4)(305600 13 s:763 m:1 s:764)
+Def = (122240 160 s:640 d:120 s:4)(325464 13 s:763 m:1 s:764)
+Def = (244480 160 s:640 d:120 s:4)(345328 13 s:763 m:1 s:764)
+#Vis:
+Out = 640 480 32
+SFrames = 1
+Def = (0 480 d:640 s:124)(305600 13 s:763 m:1 s:764)
+[Format end]
+# -----------------------------------------------------------------------------
+#[Format]
+#Guid = {12CF11ED-0190-457e-AEBF-4C1863E98D3B}
+#Name = "PI200 IR=160x120@128Hz, Vis=596x480@32Hz"
+#Channels = 2
+#In = 760 480 32
+##IR:
+#Out = 160 120 128
+#SFrames = 4
+#Def = (     0 120 s:596 d:160 s:4)(284240 13 s:759 m:1 s:760)
+#Def = ( 91200 120 s:596 d:160 s:4)(304000 13 s:759 m:1 s:760)
+#Def = (182400 120 s:596 d:160 s:4)(323760 13 s:759 m:1 s:760)
+#Def = (273600 120 s:596 d:160 s:4)(343520 13 s:759 m:1 s:760)
+##Vis:
+#Out = 596 480 32
+#SFrames = 1
+#Def = (0 480 d:596 s:164)(284240 13 s:759 m:1 s:760)
+#[Format end]
+# -----------------------------------------------------------------------------
+[Format]
+Guid = {12CF11ED-0190-457e-AEBF-4C1863E98D3C}
+Name = "PI200 IR=160x120@128Hz, Vis=596x447@32Hz"
+Channels = 2
+In = 760 480 32
+#IR:
+Out = 160 120 128
+SFrames = 4
+Def = (     0 120 s:596 d:160 s:4)(284240 13 s:759 m:1 s:760)
+Def = ( 91200 120 s:596 d:160 s:4)(304000 13 s:759 m:1 s:760)
+Def = (182400 120 s:596 d:160 s:4)(323760 13 s:759 m:1 s:760)
+Def = (273600 120 s:596 d:160 s:4)(343520 13 s:759 m:1 s:760)
+#Vis:
+Out = 596 447 32
+SFrames = 1
+Def = (12160 447 d:596 s:164)(284240 13 s:759 m:1 s:760)
+[Format end]
+# -----------------------------------------------------------------------------
+[Format]
+Guid = {D5847288-6F9E-428d-8E9A-6D3C415E8BF4}
+Name = "PI200 160x120 @ 128Hz"
+Channels = 1
+In = 164 120 128
+Out = 160 120 128
+SFrames = 1
+Def = (0 120 d:160 s:4)(15088 13 s:163 m:1 s:164)
+[Format end]
+# -----------------------------------------------------------------------------
+#       PI400
+# -----------------------------------------------------------------------------
+[Format]
+Guid = {A6160508-8450-4c25-B80F-976B2BF06E91}
+Name = "PI400 382x288 @ 40Hz"
+Channels = 1
+In = 384 288 40
+Out = 382 288 40
+SFrames = 1
+Def = (0 250 d:382 s:2)(96000 12 d:382 m:1 s:1 d:382 s:2 d:382 s:2)(109824 1 d:382 m:1 s:1 d:382 s:2)
+[Format end]
+# -----------------------------------------------------------------------------
+[Format]
+Guid = {A6160508-8450-4c25-B80F-976B2BF06E92}
+Name = "PI400 382x288 @ 80Hz"
+Channels = 1
+In = 384 288 80
+Out = 382 288 80
+SFrames = 1
+Def = (0 250 d:382 s:2)(96000 12 d:382 m:1 s:1 d:382 s:2 d:382 s:2)(109824 1 d:382 m:1 s:1 d:382 s:2)
+[Format end]
+# -----------------------------------------------------------------------------
+
+# Description:
+
+# [ImgProc format definition file] First Line that signalizes it is our file
+# Version = x		x = Version of the format of this file		
+
+# [Format]          Format tag
+# [Format end]      Format end tag
+# Guid = {x}        x = a unique identifier in curly brackets
+# Name = "x"        x = a userfriendly name in quote signes
+# Channels = x      x = number of output channels (1 = IR only, 2 = IR+Visible)
+#                   according to this number the format is defined x-times (starting with the Out parameter)
+# In = x y          Input resolution (x = width, y = height)
+# Out = x y         Output resolution of this output channel (x = width, y = height)
+# SFrames = 1       x = Number of subframes of this output channel 
+# Def = (offs n f0:x0 f1:x1 ... fn:xn) 
+#                   Definition of a subframe
+#                   offs = pixel offset in the input frame
+#                   n = number of repitions of the following sequence that must be read from the input frame
+#                   f0 = format of the first x0 bytes read from the input frame
+#                   s = Skip, data from the input buffer that has to be skipped
+#                   d = data, data from the input buffer that is image data
+#                   m = metadata, data from the input buffer that is meta data
+#                    ...
+#                   fn = format of the last xn bytes read from the input frame (according to n)
+# Def = (offs1 n ... fn:xn)(offs2 m ... fm:xm)
+#                   The Def parameter can also contain more than one block
+#                   In this case the second offset is also relative to pixel 0 in the input buffer
+
