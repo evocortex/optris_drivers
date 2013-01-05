@@ -55,7 +55,7 @@ void onDataReceive(const sensor_msgs::Image& image)
 	_iBuilder.setSize(image.width, image.height, false);
 
 	const unsigned char* data = &image.data[0];
-	_iBuilder.convertTemperatureToPalette((unsigned short*)data, _buffer);
+	_iBuilder.convertTemperatureToPaletteImage((unsigned short*)data, _buffer);
 
 	sensor_msgs::Image img;
 	img.header.frame_id = "thermal_image_view";

@@ -108,7 +108,7 @@ public:
    * @param[in] src Source image (short-Format)
    * @param[out] dst Destination image
    */
-  void convertTemperatureToPalette(unsigned short* src, unsigned char* dst);
+  void convertTemperatureToPaletteImage(unsigned short* src, unsigned char* dst);
 
   /**
    * calculate histogram
@@ -122,11 +122,11 @@ public:
 
   /**
    * Draw crosshair to the center of image
-   * @param[in/out] rgb Image in RGB-format
+   * @param[in/out] img Image in RGB or RGBA format
    * @param[in] x x-position in image
    * @param[out] y y-position in image
    */
-  void drawCrosshair(unsigned char* rgb, unsigned int x, unsigned int y);
+  void drawCrosshair(unsigned char* img, unsigned int x, unsigned int y, unsigned channels=3);
 
 private:
 

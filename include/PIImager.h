@@ -102,6 +102,20 @@ public:
   int acquire(unsigned short* buffer);
 
   /**
+   * Get energy buffer of previously acquired frame
+   * @param[out] Output buffer (needs to be allocated outside having the size of getWidth()*getHeight())
+   * @return success flag (==0)
+   */
+  int getEnergyBuffer(unsigned short* buffer);
+
+  /**
+   * Get meta data container of previously acquired frame
+   * @param[out] Output buffer
+   * @return success flag (==0)
+   */
+  int getMetaData(unsigned short buffer[64]);
+
+  /**
    * Get temperature from last acquired image at specified image index
    * @param[in] index Image index (must be within [0; getWidth()*getHeight()])
    * return temperature in degree Celsius
