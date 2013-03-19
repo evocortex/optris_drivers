@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012,
+ *  Copyright (c) 2012/2013
  *  Georg Simon Ohm University of Applied Sciences Nuremberg
  *  All rights reserved.
  *
@@ -15,8 +15,8 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Willow Garage nor the names of its
- *     contributors may be used to endorse or promote products derived
+ *   * Neither the name of Georg Simon Ohm University nor the authors
+ *     names may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
  *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -37,6 +37,8 @@
 
 #include "ros/ros.h"
 #include "sensor_msgs/Image.h"
+#include "std_msgs/Float32.h"
+#include "std_srvs/Empty.h"
 #include "optris_drivers/AutoFlag.h"
 
 #include "PIImager.h"
@@ -45,7 +47,15 @@
 #include <sys/stat.h>
 
 sensor_msgs::Image _thermal_image;
+std_msgs::Float32  _flag_temperature;
+std_msgs::Float32  _box_temperature;
+std_msgs::Float32  _chip_temperature;
+
 ros::Publisher     _img_pub;
+ros::Publisher     _flag_pub;
+ros::Publisher     _box_pub;
+ros::Publisher     _chip_pub;
+
 unsigned int       _img_cnt = 0;
 optris::PIImager*  _imager;
 
@@ -61,8 +71,15 @@ void onFrame(unsigned short* image, unsigned int w, unsigned int h)
 
 	_thermal_image.header.seq   = _img_cnt++;
 	_thermal_image.header.stamp = ros::Time::now();
-
 	_img_pub.publish(_thermal_image);
+
+	_flag_temperature.data = _imager->getTempFlag();
+	_box_temperature.data = _imager->getTempBox();
+	_chip_temperature.data = _imager->getTempChip();
+	_flag_pub.publish(_flag_temperature);
+	_box_pub.publish(_box_temperature);
+	_chip_pub.publish(_chip_temperature);
+
 	ros::spinOnce();
 }
 
@@ -70,6 +87,12 @@ bool onAutoFlag(optris_drivers::AutoFlag::Request  &req, optris_drivers::AutoFla
 {
 	_imager->setAutoFlag(req.autoFlag);
 	return true;
+}
+
+bool onForceFlag(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+   _imager->forceFlagEvent();
+   return true;
 }
 
 int main(int argc, char **argv)
@@ -87,7 +110,7 @@ int main(int argc, char **argv)
 	if(stat(xmlConfig.c_str(), &s) != 0)
 	{
 		std::cerr << "usage: rosrun <package> <node> _xmlConfig:=<xmlConfig>" << std::endl;
-		std::cerr << " verify that <xmlConfig> is existent" << std::endl;
+		std::cerr << " verify that <xmlConfig> exists" << std::endl;
 		return -1;
 	}
 
@@ -95,8 +118,12 @@ int main(int argc, char **argv)
 
 	_imager = new optris::PIImager(xmlConfig.c_str());
 
-	ros::ServiceServer service = n_.advertiseService("auto_flag", onAutoFlag);
+	ros::ServiceServer sAuto = n_.advertiseService("auto_flag", onAutoFlag);
+	ros::ServiceServer sForce = n_.advertiseService("force_flag", onForceFlag);
 	_img_pub = n.advertise<sensor_msgs::Image>("thermal_image" , 1);
+	_flag_pub = n.advertise<std_msgs::Float32>("temperature_flag" , 1);
+	_box_pub = n.advertise<std_msgs::Float32>("temperature_box" , 1);
+	_chip_pub = n.advertise<std_msgs::Float32>("temperature_chip" , 1);
 
 	unsigned char* bufferRaw = new unsigned char[_imager->getRawBufferSize()];
 

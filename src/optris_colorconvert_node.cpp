@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012,
+ *  Copyright (c) 2012/2013
  *  Georg Simon Ohm University of Applied Sciences Nuremberg
  *  All rights reserved.
  *
@@ -15,8 +15,8 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Willow Garage nor the names of its
- *     contributors may be used to endorse or promote products derived
+ *   * Neither the name of Georg Simon Ohm University nor the authors
+ *     names may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
  *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS

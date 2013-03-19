@@ -2,9 +2,19 @@
 #define PIIMAGER_H
 
 enum EnumControlInterface {HIDController=1, UVCController=2};
+enum EnumOutputMode {Energy=1, Temperature=2};
 
 namespace optris
 {
+
+struct ExtremalRegion
+{
+  float t;
+  int u1;
+  int v1;
+  int u2;
+  int v2;
+};
 
 typedef void (*fptrOptrisFrame)(unsigned short* data, unsigned int w, unsigned int h);
 
@@ -32,9 +42,9 @@ public:
    * @param[in] tMin Minimum temperature (cf. valid temperature ranges)
    * @param[in] tMax Maximum temperature (cf. valid temperature ranges)
    * @param[in] framerate Desired framerate (must be less or equal than the camera's framerate)
-   * @param[in] sim Simulation mode (if true, v4lPath is interpreted as the path to a previously recorded uvc trace file)
+   * @param[in] mode Streaming output mode, i.e., energy data or temperature data
    */
-  PIImager(const char* v4lPath, unsigned long serial, EnumControlInterface controller, int fov, int tMin, int tMax, float framerate, bool sim = false);
+  PIImager(const char* v4lPath, unsigned long serial, EnumControlInterface controller, int fov, int tMin, int tMax, float framerate, EnumOutputMode mode = Temperature);
 
   /**
    * Destructor
@@ -111,9 +121,10 @@ public:
   /**
    * Get meta data container of previously acquired frame
    * @param[out] Output buffer
-   * @return success flag (==0)
+   * @param[in] size Size of buffer in bytes
+   * @return number of copied bytes
    */
-  int getMetaData(unsigned short buffer[64]);
+  int getMetaData(unsigned char* buffer, int size);
 
   /**
    * Get temperature from last acquired image at specified image index
@@ -121,6 +132,32 @@ public:
    * return temperature in degree Celsius
    */
   float getTemperatureAt(int index);
+
+  /**
+   * Get temperature from last acquired image at specified image coordinates
+   * @param[in] u Image column (must be within [0; getWidth()])
+   * @param[in] v Image row (must be within [0; getHeight()])
+   * return temperature in degree Celsius
+   */
+  float getTemperatureAt(int u, int v);
+
+  /**
+   * Get mean temperature of rectangluar measuring field
+   * @param[in] u1 u-component of image coordinate, i. e. column of 1st point
+   * @param[in] v1 v-component of image coordinate, i. e. row of 1st point
+   * @param[in] u2 u-component of image coordinate, i. e. column of 2nd point
+   * @param[in] v2 v-component of image coordinate, i. e. row of 2nd point
+   * @return mean temperature
+   */
+  float getMeanTemperature(int u1, int v1, int u2, int v2);
+
+  /**
+   * Get region of minimum/maximum temperature with given radius
+   * @param[in] radius Radius of region
+   * @param[out] minRegion Region of minimum mean temperature
+   * @param[out] maxRegion Region of maximum mean temperature
+   */
+  void getMinMaxRegion(int radius, ExtremalRegion* minRegion, ExtremalRegion* maxRegion);
 
   /**
    * Set callback function to be called for new frames
@@ -146,17 +183,6 @@ public:
   void process(unsigned char* buffer);
 
   /**
-   * Start recording to specified file (Warning: Files are growing rapidly in size)
-   * @param path File path
-   */
-  void startRecording(const char* path);
-
-  /**
-   * Stop recording to specified file
-   */
-  void stopRecording();
-
-  /**
    * Set automatic flag activation state. Disabling will prevent camera from getting freezed frequently for several frames.
    * But temperature data might deviate too much.
    * @param[in] flag Autmatic flag activation state
@@ -170,6 +196,29 @@ public:
   bool getAutoFlag();
 
   /**
+   * Force shutter flag event manually (close/open cycle)
+   */
+  void forceFlagEvent();
+
+  /**
+   * Get temperature of shutter flag
+   * @return temperature
+   */
+  float getTempFlag();
+
+  /**
+   * Get temperature of housing
+   * @return temperature
+   */
+  float getTempBox();
+
+  /**
+   * Get temperature of chip
+   * @return temperature
+   */
+  float getTempChip();
+
+  /**
    * Internal method not to be used from any application!
    */
   void onFrameInit(unsigned int width, unsigned int height);
@@ -179,9 +228,15 @@ public:
    */
   void onFrame(unsigned short* buffer);
 
+  int readControl(unsigned int id, int* value);
+
+  int writeControl(unsigned int id, int value);
+
 private:
 
   void init();
+
+  void calculateIntegralImage();
 
   unsigned int _widthIn;
 
@@ -192,6 +247,10 @@ private:
   unsigned int _heightOut;
 
   unsigned short* _buffer;
+
+  unsigned long* _integral;
+
+  bool _integralIsDirty;
 
   fptrOptrisFrame _cbFrame;
 
@@ -205,6 +264,8 @@ private:
 
   float _maxFramerate;
 
+  int _outputmode;
+
   unsigned long _serial;
 
   const char* _v4lPath;
@@ -213,7 +274,7 @@ private:
 
   bool _autoFlag;
 
-  int _sim;
+  bool _manualFlag;
 };
 
 }
