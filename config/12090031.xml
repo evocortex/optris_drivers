@@ -7,5 +7,5 @@
 	</temperature>
 	<framerate>30.0</framerate>
 	<controller>1</controller>
-	<outputmode>1</outputmode>
+	<outputmode>2</outputmode>
 </imager>
