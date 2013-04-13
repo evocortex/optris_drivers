@@ -1,3 +1,17 @@
+/******************************************************************************
+ * Copyright (c) 2012, 2013 All Rights Reserved, http://www.optris.de         *                                                                          *
+ *  Optris GmbH                                                               *
+ *  Ferdinand-Buisson-Str. 14                                                 *
+ *  13127 Berlin                                                              *
+ *  Germany                                                                   *
+ *                                                                            *
+ * Contributors:                                                              *
+ * - Linux platform development in cooperation with Nuremberg Institute of    *
+ *   Technology Georg Simon Ohm, http//www.th-nuernberg.de                    *
+ * - Linux 64-Bit platform supported by Fraunhofer IPA,                       *
+ *   http://www.ipa.fraunhofer.de                                             *
+ *****************************************************************************/
+
 #ifndef OPTRISIMAGEBUILDER_H
 #define OPTRISIMAGEBUILDER_H
 
@@ -25,7 +39,7 @@ typedef unsigned char (*paletteTable)[3];
 
 /**
  * Image creation module for displaying purposes
- * @author Stefan May
+ * @author Stefan May (Nuremberg Institute of Technology Georg Simon Ohm), Matthias Wiedemann (Optris GmbH)
  */
 class ImageBuilder
 {

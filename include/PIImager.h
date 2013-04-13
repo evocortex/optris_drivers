@@ -1,3 +1,17 @@
+/******************************************************************************
+ * Copyright (c) 2012, 2013 All Rights Reserved, http://www.optris.de         *                                                                          *
+ *  Optris GmbH                                                               *
+ *  Ferdinand-Buisson-Str. 14                                                 *
+ *  13127 Berlin                                                              *
+ *  Germany                                                                   *
+ *                                                                            *
+ * Contributors:                                                              *
+ * - Linux platform development in cooperation with Nuremberg Institute of    *
+ *   Technology Georg Simon Ohm, http//www.th-nuernberg.de                    *
+ * - Linux 64-Bit platform supported by Fraunhofer IPA,                       *
+ *   http://www.ipa.fraunhofer.de                                             *
+ *****************************************************************************/
+
 #ifndef PIIMAGER_H
 #define PIIMAGER_H
 
@@ -21,7 +35,7 @@ typedef void (*fptrOptrisFrame)(unsigned short* data, unsigned int w, unsigned i
 /**
  * @class PIImager
  * @brief Wrapper for optris driver and image processing library
- * @author Stefan May
+ * @author Stefan May (Nuremberg Institute of Technology Georg Simon Ohm), Matthias Wiedemann (Optris GmbH)
  */
 class PIImager
 {
@@ -50,6 +64,12 @@ public:
    * Destructor
    */
   ~PIImager();
+
+  /**
+   * Get serial number of device
+   * @return serial number
+   */
+  unsigned long getSerial();
 
   /**
    * Start UVC data streaming
@@ -201,6 +221,12 @@ public:
   void forceFlagEvent();
 
   /**
+   * Check if shutter flag is open
+   * @return flag open
+   */
+  bool isFlagOpen();
+
+  /**
    * Get temperature of shutter flag
    * @return temperature
    */
@@ -275,6 +301,12 @@ private:
   bool _autoFlag;
 
   bool _manualFlag;
+
+  float _tBox;
+
+  float _tChip;
+
+  float _tFlag;
 };
 
 }

@@ -1,10 +1,10 @@
 <package>
   <description brief="Wrapper for Optris thermal imager library">
 
-     ROS nodes wrapping the 32-bit binary imager driver for Optris thermal imager devices.
+     ROS nodes wrapping the binary imager driver for Optris thermal imager devices.
 
   </description>
-  <author>Stefan May</author>
+  <author>Stefan May (Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de), 64-Bit platform supported by Fraunhofer IPA (www.ipa.fraunhofer.de)</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/optris_drivers</url>
