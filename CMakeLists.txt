@@ -30,7 +30,7 @@ rosbuild_gensrv()
 #target_link_libraries(example ${PROJECT_NAME})
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
-LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/lib)
+LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/lib/i386 ${PROJECT_SOURCE_DIR}/lib/x86_64)
 LINK_LIBRARIES(PIImager ImageProcessing udev)
 
 rosbuild_add_executable(optris_imager_node src/optris_imager_node.cpp)
