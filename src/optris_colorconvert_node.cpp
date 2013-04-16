@@ -2,7 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2012/2013
- *  Georg Simon Ohm University of Applied Sciences Nuremberg
+ *  Nuremberg Institute of Technology Georg Simon Ohm
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -15,9 +15,10 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Georg Simon Ohm University nor the authors
- *     names may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
+ *   * Neither the name of Nuremberg Institute of Technology
+ *     Georg Simon Ohm nor the authors names may be used to endorse
+ *     or promote products derived from this software without specific
+ *     prior written permission.
  *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -36,39 +37,39 @@
  *********************************************************************/
 
 #include "ros/ros.h"
-#include "sensor_msgs/Image.h"
+#include <image_transport/image_transport.h>
 
 #include "ImageBuilder.h"
 
-unsigned char* _buffer = NULL;
-ros::Publisher _pub;
-unsigned int _frame = 0;
+unsigned char*                    _buffer = NULL;
+image_transport::Publisher        _pub;
+unsigned int                      _frame = 0;
 
-optris::ImageBuilder _iBuilder;
+optris::ImageBuilder              _iBuilder;
 optris::EnumOptrisColoringPalette _palette;
 
-void onDataReceive(const sensor_msgs::Image& image)
+void onDataReceive(const sensor_msgs::ImageConstPtr& image)
 {
 	if(_buffer==NULL)
-        _buffer = new unsigned char[image.width * image.height * 3];
+        _buffer = new unsigned char[image->width * image->height * 3];
 
-	_iBuilder.setSize(image.width, image.height, false);
+	_iBuilder.setSize(image->width, image->height, false);
 
-	const unsigned char* data = &image.data[0];
+	const unsigned char* data = &image->data[0];
 	_iBuilder.convertTemperatureToPaletteImage((unsigned short*)data, _buffer);
 
 	sensor_msgs::Image img;
 	img.header.frame_id = "thermal_image_view";
-	img.height 	        = image.height;
-	img.width 	        = image.width;
+	img.height 	        = image->height;
+	img.width 	        = image->width;
 	img.encoding        = "rgb8";
-	img.step		    = image.width*3;
+	img.step		    = image->width*3;
 	img.data.resize(img.height*img.step);
 
 	img.header.seq      = _frame++;
 	img.header.stamp    = ros::Time::now();
 
-	for(unsigned int i=0; i<image.width*image.height*3; i++)
+	for(unsigned int i=0; i<image->width*image->height*3; i++)
 	{
         img.data[i] = _buffer[i];
 	}
@@ -103,10 +104,12 @@ int main (int argc, char* argv[])
 	_iBuilder.setManualTemperatureRange((float)tMin, (float)tMax);
 
 	ros::NodeHandle n;
-	ros::Subscriber sub = n.subscribe("thermal_image", 1, onDataReceive);
-	_pub                = n.advertise<sensor_msgs::Image>("thermal_image_view" , 1);
+	image_transport::ImageTransport it(n);
+	image_transport::Subscriber sub = it.subscribe("thermal_image", 1, onDataReceive);
 
-	// specify loop rate a meaningful value according to your publisher configuration
+   _pub = it.advertise("thermal_image_view", 1);
+
+	// specify loop rate: a meaningful value according to your publisher configuration
 	ros::Rate loop_rate(30);
 	while (ros::ok())
 	{

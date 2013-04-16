@@ -2,7 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2012/2013
- *  Georg Simon Ohm University of Applied Sciences Nuremberg
+ *  Nuremberg Institute of Technology Georg Simon Ohm
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -15,9 +15,10 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Georg Simon Ohm University nor the authors
- *     names may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
+ *   * Neither the name of Nuremberg Institute of Technology
+ *     Georg Simon Ohm nor the authors names may be used to endorse
+ *     or promote products derived from this software without specific
+ *     prior written permission.
  *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -36,7 +37,7 @@
  *********************************************************************/
 
 #include "ros/ros.h"
-#include "sensor_msgs/Image.h"
+#include <image_transport/image_transport.h>
 #include "std_msgs/Float32.h"
 #include "std_srvs/Empty.h"
 #include "optris_drivers/AutoFlag.h"
@@ -46,18 +47,18 @@
 
 #include <sys/stat.h>
 
-sensor_msgs::Image _thermal_image;
-std_msgs::Float32  _flag_temperature;
-std_msgs::Float32  _box_temperature;
-std_msgs::Float32  _chip_temperature;
+sensor_msgs::Image         _thermal_image;
+std_msgs::Float32          _flag_temperature;
+std_msgs::Float32          _box_temperature;
+std_msgs::Float32          _chip_temperature;
 
-ros::Publisher     _img_pub;
-ros::Publisher     _flag_pub;
-ros::Publisher     _box_pub;
-ros::Publisher     _chip_pub;
+image_transport::Publisher _img_pub;
+ros::Publisher             _flag_pub;
+ros::Publisher             _box_pub;
+ros::Publisher             _chip_pub;
 
-unsigned int       _img_cnt = 0;
-optris::PIImager*  _imager;
+unsigned int               _img_cnt = 0;
+optris::PIImager*          _imager;
 
 /**
  * Callback method from image processing library, called with configured frame rate, see xml file
@@ -120,7 +121,10 @@ int main(int argc, char **argv)
 
 	ros::ServiceServer sAuto = n_.advertiseService("auto_flag", onAutoFlag);
 	ros::ServiceServer sForce = n_.advertiseService("force_flag", onForceFlag);
-	_img_pub = n.advertise<sensor_msgs::Image>("thermal_image" , 1);
+
+	image_transport::ImageTransport it(n);
+	_img_pub = it.advertise("thermal_image", 1);
+
 	_flag_pub = n.advertise<std_msgs::Float32>("temperature_flag" , 1);
 	_box_pub = n.advertise<std_msgs::Float32>("temperature_box" , 1);
 	_chip_pub = n.advertise<std_msgs::Float32>("temperature_chip" , 1);
@@ -139,7 +143,7 @@ int main(int argc, char **argv)
 	_imager->startStreaming();
 
 	// loop over acquire-process-release-publish steps
-	// Images are published in raw format (unsigned short, see onFrame callback for details)
+	// Images are published in raw temperature format (unsigned short, see onFrame callback for details)
 	ros::Rate loop_rate(_imager->getMaxFramerate());
 	while (ros::ok())
 	{

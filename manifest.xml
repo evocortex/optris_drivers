@@ -1,7 +1,7 @@
 <package>
   <description brief="Wrapper for Optris thermal imager library">
 
-     ROS nodes wrapping the binary imager driver for Optris thermal imager devices.
+     ROS nodes wrapping the binary driver for Optris thermal imager devices.
 
   </description>
   <author>Stefan May (Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de), 64-Bit platform supported by Fraunhofer IPA (www.ipa.fraunhofer.de)</author>
@@ -12,7 +12,7 @@
   <depend package="std_msgs"/>
   <depend package="std_srvs"/>
   <depend package="sensor_msgs"/>
-
+  <depend package="image_transport"/>
 </package>
 
 
