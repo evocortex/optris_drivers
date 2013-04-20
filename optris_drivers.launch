@@ -2,7 +2,7 @@
 <group ns="optris">
   <node name="optris_imager_node" pkg="optris_drivers" type="optris_imager_node">
     <!-- Set configuration file of your camera here! -->
-    <param name="xmlConfig"      type="string" value="$(find optris_drivers)/config/12090031.xml"/>  
+    <param name="xmlConfig"      type="string" value="$(find optris_drivers)/config/11110043.xml"/>  
   </node>
   <node name="optris_colorconvert_node" pkg="optris_drivers" type="optris_colorconvert_node">
     <param name="palette"        type="int"    value="6"/>     <!-- see ImageBuilder.h for valid values -->

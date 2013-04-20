@@ -31,6 +31,7 @@ struct ExtremalRegion
 };
 
 typedef void (*fptrOptrisFrame)(unsigned short* data, unsigned int w, unsigned int h);
+typedef void (*fptrOptrisVisibleFrame)(unsigned char* data, unsigned int w, unsigned int h);
 
 /**
  * @class PIImager
@@ -57,8 +58,9 @@ public:
    * @param[in] tMax Maximum temperature (cf. valid temperature ranges)
    * @param[in] framerate Desired framerate (must be less or equal than the camera's framerate)
    * @param[in] mode Streaming output mode, i.e., energy data or temperature data
+   * @param[in] bispectral 1, if bispectral technology is available (only PI200/PI230) and should be used, else 0
    */
-  PIImager(const char* v4lPath, unsigned long serial, EnumControlInterface controller, int fov, int tMin, int tMax, float framerate, EnumOutputMode mode = Temperature);
+  PIImager(const char* v4lPath, unsigned long serial, EnumControlInterface controller, int fov, int tMin, int tMax, float framerate, EnumOutputMode mode = Temperature, int bispectral=0);
 
   /**
    * Destructor
@@ -77,26 +79,38 @@ public:
   void startStreaming();
 
   /**
-   * Get image width
+   * Get image width of thermal channel
    * @return Image width, i.e. number of columns
    */
   unsigned int getWidth();
 
   /**
-   * Get image height
+   * Get image height of thermal channel
    * @return Image height, i.e. number of rows
    */
   unsigned int getHeight();
 
   /**
+   * Get image width of visible channel (if available)
+   * @return Image width, i.e. number of columns
+   */
+  unsigned int getVisibleWidth();
+
+  /**
+   * Get image height of visible channel (if available)
+   * @return Image height, i.e. number of rows
+   */
+  unsigned int getVisibleHeight();
+
+  /**
    * Get configured frame rate
-   * return framerate (in frames/second)
+   * return frame rate (in frames/second)
    */
   float getFramerate();
 
   /**
    * Get maximum frame rate of device
-   * return framerate (in frames/second)
+   * return frame rate (in frames/second)
    */
   float getMaxFramerate();
   /**
@@ -118,7 +132,13 @@ public:
   int getTemperatureRangeMax();
 
   /**
-   * Get raw image (needs to be processed to get thermal data)
+   * Check if bispectral technology is available
+   * @return bispectral technology flag
+   */
+  bool hasBispectralTechnology();
+
+  /**
+   * Get raw image (needs to be processed to obtain thermal data)
    * @param[out] buffer Output buffer (needs to be allocated outside having the size of getRawBufferSize())
    * @return success flag (==0)
    */
@@ -181,9 +201,15 @@ public:
 
   /**
    * Set callback function to be called for new frames
-   * @param[in] callback Pointer to callback function
+   * @param[in] callback Pointer to callback function for thermal channel
    */
   void setFrameCallback(fptrOptrisFrame callback);
+
+  /**
+   * Set callback function to be called for new frames
+   * @param[in] callback Pointer to callback function for visible channel
+   */
+  void setVisibleFrameCallback(fptrOptrisVisibleFrame callback);
 
   /**
    * Release frame bound with getFrame of acquire method (needs to be called within the grabbing loop)
@@ -247,15 +273,31 @@ public:
   /**
    * Internal method not to be used from any application!
    */
-  void onFrameInit(unsigned int width, unsigned int height);
+  void onThermalFrameInit(unsigned int width, unsigned int height);
 
   /**
    * Internal method not to be used from any application!
    */
-  void onFrame(unsigned short* buffer);
+  void onThermalFrame(unsigned short* buffer);
 
+  /**
+   * Internal method not to be used from any application!
+   */
+  void onVisibleFrameInit(unsigned int width, unsigned int height);
+
+  /**
+   * Internal method not to be used from any application!
+   */
+  void onVisibleFrame(unsigned char* buffer);
+
+  /**
+   * Internal method to communicate with uvc device
+   */
   int readControl(unsigned int id, int* value);
 
+  /**
+   * Internal method to communicate with uvc device
+   */
   int writeControl(unsigned int id, int value);
 
 private:
@@ -274,11 +316,19 @@ private:
 
   unsigned short* _buffer;
 
+  unsigned int _widthOutVisible;
+
+  unsigned int _heightOutVisible;
+
+  unsigned char* _bufferVisible;
+
   unsigned long* _integral;
 
   bool _integralIsDirty;
 
   fptrOptrisFrame _cbFrame;
+
+  fptrOptrisVisibleFrame _cbVisibleFrame;
 
   int _fov;
 
@@ -307,6 +357,8 @@ private:
   float _tChip;
 
   float _tFlag;
+
+  int _bispectral;
 };
 
 }

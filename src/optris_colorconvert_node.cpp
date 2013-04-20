@@ -41,42 +41,70 @@
 
 #include "ImageBuilder.h"
 
-unsigned char*                    _buffer = NULL;
-image_transport::Publisher        _pub;
+unsigned char*                    _bufferThermal = NULL;
+unsigned char*                    _bufferVisible = NULL;
+image_transport::Publisher        _pubThermal;
+image_transport::Publisher        _pubVisible;
 unsigned int                      _frame = 0;
 
 optris::ImageBuilder              _iBuilder;
 optris::EnumOptrisColoringPalette _palette;
 
-void onDataReceive(const sensor_msgs::ImageConstPtr& image)
+void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
 {
-	if(_buffer==NULL)
-        _buffer = new unsigned char[image->width * image->height * 3];
+	if(_bufferThermal==NULL)
+        _bufferThermal = new unsigned char[image->width * image->height * 3];
 
 	_iBuilder.setSize(image->width, image->height, false);
 
 	const unsigned char* data = &image->data[0];
-	_iBuilder.convertTemperatureToPaletteImage((unsigned short*)data, _buffer);
+	_iBuilder.convertTemperatureToPaletteImage((unsigned short*)data, _bufferThermal);
 
 	sensor_msgs::Image img;
 	img.header.frame_id = "thermal_image_view";
 	img.height 	        = image->height;
 	img.width 	        = image->width;
 	img.encoding        = "rgb8";
-	img.step		    = image->width*3;
+	img.step		        = image->width*3;
 	img.data.resize(img.height*img.step);
 
-	img.header.seq      = _frame++;
+	img.header.seq      = ++_frame;
 	img.header.stamp    = ros::Time::now();
 
 	for(unsigned int i=0; i<image->width*image->height*3; i++)
 	{
-        img.data[i] = _buffer[i];
+        img.data[i] = _bufferThermal[i];
 	}
 
-	_pub.publish(img);
+	_pubThermal.publish(img);
 }
 
+void onVisibleDataReceive(const sensor_msgs::ImageConstPtr& image)
+{
+   if(_bufferVisible==NULL)
+        _bufferVisible = new unsigned char[image->width * image->height * 3];
+
+   const unsigned char* data = &image->data[0];
+   _iBuilder.yuv422torgb24(data, _bufferVisible, image->width, image->height);
+
+   sensor_msgs::Image img;
+   img.header.frame_id = "visible_image_view";
+   img.height          = image->height;
+   img.width           = image->width;
+   img.encoding        = "rgb8";
+   img.step            = image->width*3;
+   img.data.resize(img.height*img.step);
+
+   img.header.seq      = _frame;
+   img.header.stamp    = ros::Time::now();
+
+   for(unsigned int i=0; i<image->width*image->height*3; i++)
+   {
+        img.data[i] = _bufferVisible[i];
+   }
+
+   _pubVisible.publish(img);
+}
 
 int main (int argc, char* argv[])
 {
@@ -105,9 +133,11 @@ int main (int argc, char* argv[])
 
 	ros::NodeHandle n;
 	image_transport::ImageTransport it(n);
-	image_transport::Subscriber sub = it.subscribe("thermal_image", 1, onDataReceive);
+	image_transport::Subscriber subThermal = it.subscribe("thermal_image", 1, onThermalDataReceive);
+	image_transport::Subscriber subVisible = it.subscribe("visible_image", 1, onVisibleDataReceive);
 
-   _pub = it.advertise("thermal_image_view", 1);
+   _pubThermal = it.advertise("thermal_image_view", 1);
+   _pubVisible = it.advertise("visible_image_view", 1);
 
 	// specify loop rate: a meaningful value according to your publisher configuration
 	ros::Rate loop_rate(30);
@@ -117,5 +147,6 @@ int main (int argc, char* argv[])
         loop_rate.sleep();
 	}
 
-	if(_buffer)	delete [] _buffer;
+	if(_bufferThermal)	delete [] _bufferThermal;
+	if(_bufferVisible)   delete [] _bufferVisible;
 }

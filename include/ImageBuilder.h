@@ -136,11 +136,20 @@ public:
 
   /**
    * Draw crosshair to the center of image
-   * @param[in/out] img Image in RGB or RGBA format
+   * @param[in/out] img image in RGB or RGBA format
    * @param[in] x x-position in image
    * @param[out] y y-position in image
    */
   void drawCrosshair(unsigned char* img, unsigned int x, unsigned int y, unsigned channels=3);
+
+  /**
+   * Convert YUV422 image to RGB format (8-Bit per channel)
+   * @param[in] src source image
+   * @param[out] dst destination image
+   * @param w image width
+   * @param h image height
+   */
+  void yuv422torgb24(const unsigned char* src, unsigned char* dst, unsigned int w, unsigned int h);
 
 private:
 
