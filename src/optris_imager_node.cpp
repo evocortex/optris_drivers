@@ -77,7 +77,7 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h)
 	_thermal_pub->publish(_thermal_image);
 
 	_flag_temperature.data = _imager->getTempFlag();
-	_box_temperature.data = _imager->getTempBox();
+	_box_temperature.data  = _imager->getTempBox();
 	_chip_temperature.data = _imager->getTempChip();
 	_flag_pub.publish(_flag_temperature);
 	_box_pub.publish(_box_temperature);
@@ -99,7 +99,7 @@ bool onAutoFlag(optris_drivers::AutoFlag::Request  &req, optris_drivers::AutoFla
 	return true;
 }
 
-bool onForceFlag(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+bool onForceFlag(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
 {
    _imager->forceFlagEvent();
    return true;

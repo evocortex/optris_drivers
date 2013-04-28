@@ -65,7 +65,7 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
 	img.height 	        = image->height;
 	img.width 	        = image->width;
 	img.encoding        = "rgb8";
-	img.step		        = image->width*3;
+	img.step            = image->width*3;
 	img.data.resize(img.height*img.step);
 
 	img.header.seq      = ++_frame;
@@ -150,5 +150,5 @@ int main (int argc, char* argv[])
 	}
 
 	if(_bufferThermal)	delete [] _bufferThermal;
-	if(_bufferVisible)   delete [] _bufferVisible;
+	if(_bufferVisible)  delete [] _bufferVisible;
 }
