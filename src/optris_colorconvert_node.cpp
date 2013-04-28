@@ -43,8 +43,8 @@
 
 unsigned char*                    _bufferThermal = NULL;
 unsigned char*                    _bufferVisible = NULL;
-image_transport::Publisher        _pubThermal;
-image_transport::Publisher        _pubVisible;
+image_transport::Publisher*       _pubThermal;
+image_transport::Publisher*       _pubVisible;
 unsigned int                      _frame = 0;
 
 optris::ImageBuilder              _iBuilder;
@@ -76,7 +76,7 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
         img.data[i] = _bufferThermal[i];
 	}
 
-	_pubThermal.publish(img);
+	_pubThermal->publish(img);
 }
 
 void onVisibleDataReceive(const sensor_msgs::ImageConstPtr& image)
@@ -103,7 +103,7 @@ void onVisibleDataReceive(const sensor_msgs::ImageConstPtr& image)
         img.data[i] = _bufferVisible[i];
    }
 
-   _pubVisible.publish(img);
+   _pubVisible->publish(img);
 }
 
 int main (int argc, char* argv[])
@@ -136,8 +136,10 @@ int main (int argc, char* argv[])
 	image_transport::Subscriber subThermal = it.subscribe("thermal_image", 1, onThermalDataReceive);
 	image_transport::Subscriber subVisible = it.subscribe("visible_image", 1, onVisibleDataReceive);
 
-   _pubThermal = it.advertise("thermal_image_view", 1);
-   _pubVisible = it.advertise("visible_image_view", 1);
+    image_transport::Publisher pubt = it.advertise("thermal_image_view", 1);
+    image_transport::Publisher pubv = it.advertise("visible_image_view", 1);
+    _pubThermal = &pubt;
+    _pubVisible = &pubv;
 
 	// specify loop rate: a meaningful value according to your publisher configuration
 	ros::Rate loop_rate(30);
