@@ -46,21 +46,21 @@
 #include "ImageBuilder.h"
 
 #include <sys/stat.h>
+using namespace std;
+sensor_msgs::Image          _thermal_image;
+sensor_msgs::Image          _visible_image;
+std_msgs::Float32           _flag_temperature;
+std_msgs::Float32           _box_temperature;
+std_msgs::Float32           _chip_temperature;
 
-sensor_msgs::Image         _thermal_image;
-sensor_msgs::Image         _visible_image;
-std_msgs::Float32          _flag_temperature;
-std_msgs::Float32          _box_temperature;
-std_msgs::Float32          _chip_temperature;
+image_transport::Publisher* _thermal_pub;
+image_transport::Publisher* _visible_pub;
+ros::Publisher              _flag_pub;
+ros::Publisher              _box_pub;
+ros::Publisher              _chip_pub;
 
-image_transport::Publisher _thermal_pub;
-image_transport::Publisher _visible_pub;
-ros::Publisher             _flag_pub;
-ros::Publisher             _box_pub;
-ros::Publisher             _chip_pub;
-
-unsigned int               _img_cnt = 0;
-optris::PIImager*          _imager;
+unsigned int                _img_cnt = 0;
+optris::PIImager*           _imager;
 
 /**
  * Callback method from image processing library (called with configured frame rate from xml file)
@@ -74,7 +74,7 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h)
 
 	_thermal_image.header.seq   = ++_img_cnt;
 	_thermal_image.header.stamp = ros::Time::now();
-	_thermal_pub.publish(_thermal_image);
+	_thermal_pub->publish(_thermal_image);
 
 	_flag_temperature.data = _imager->getTempFlag();
 	_box_temperature.data = _imager->getTempBox();
@@ -82,8 +82,6 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h)
 	_flag_pub.publish(_flag_temperature);
 	_box_pub.publish(_box_temperature);
 	_chip_pub.publish(_chip_temperature);
-
-	if(!_imager->hasBispectralTechnology()) ros::spinOnce();
 }
 
 void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h)
@@ -92,9 +90,7 @@ void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h)
 
    _visible_image.header.seq   = _img_cnt;
    _visible_image.header.stamp = ros::Time::now();
-   _visible_pub.publish(_visible_image);
-
-   ros::spinOnce();
+   _visible_pub->publish(_visible_image);
 }
 
 bool onAutoFlag(optris_drivers::AutoFlag::Request  &req, optris_drivers::AutoFlag::Response &res)
@@ -134,11 +130,12 @@ int main(int argc, char **argv)
 
 	unsigned char* bufferRaw = new unsigned char[_imager->getRawBufferSize()];
 
-   image_transport::ImageTransport it(n);
+    image_transport::ImageTransport it(n);
 
 	_imager->setFrameCallback(onThermalFrame);
 
-	_thermal_pub  = it.advertise("thermal_image", 1);
+	image_transport::Publisher tpub  = it.advertise("thermal_image", 1);
+	_thermal_pub = &tpub;
 
 	_thermal_image.header.frame_id = "thermal_image";
 	_thermal_image.height          = _imager->getHeight();
@@ -151,7 +148,8 @@ int main(int argc, char **argv)
    {
       _imager->setVisibleFrameCallback(onVisibleFrame);
 
-      _visible_pub = it.advertise("visible_image", 2);
+      image_transport::Publisher vpub = it.advertise("visible_image", 1);
+      _visible_pub = &vpub;
 
       _visible_image.header.frame_id = "visible_image";
       _visible_image.height          = _imager->getVisibleHeight();
@@ -178,6 +176,7 @@ int main(int argc, char **argv)
 		_imager->getFrame(bufferRaw);
 		_imager->process(bufferRaw);
 		_imager->releaseFrame();
+		ros::spinOnce();
 		loop_rate.sleep();
 	}
 
