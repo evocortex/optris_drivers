@@ -49,7 +49,17 @@ public:
   PIImager(const char* xmlConfig);
 
   /**
-   * Standard constructor
+   * Standard constructor (Empty -> see comment of init routine)
+   */
+  PIImager();
+
+  /**
+   * Destructor
+   */
+  ~PIImager();
+
+  /**
+   * Initializing routine, to be called if empty constructor was chosen to instantiate device
    * @param[in] v4lPath video4Linux device path
    * @param[in] serial Serial number (if set to 0, the device is tried to be automatically detected
    * @param[in] controller BaseControlInterface, i.e., HID or UVC
@@ -60,12 +70,20 @@ public:
    * @param[in] mode Streaming output mode, i.e., energy data or temperature data
    * @param[in] bispectral 1, if bispectral technology is available (only PI200/PI230) and should be used, else 0
    */
-  PIImager(const char* v4lPath, unsigned long serial, EnumControlInterface controller, int fov, int tMin, int tMax, float framerate, EnumOutputMode mode = Temperature, int bispectral=0);
+  void init(const char* v4lPath, unsigned long serial, EnumControlInterface controller, int fov, int tMin, int tMax, float framerate, EnumOutputMode mode, int bispectral);
 
   /**
-   * Destructor
+   * Check for opened device
+   * @return device opened
    */
-  ~PIImager();
+  bool isOpen();
+
+  /**
+   * Check existance of calibration file set
+   * @param[in] serial Serial number to be checked
+   * @return missing files as comma separated list
+   */
+  char* checkCalibration(unsigned long serial);
 
   /**
    * Get serial number of device
@@ -76,7 +94,7 @@ public:
   /**
    * Start UVC data streaming
    */
-  void startStreaming();
+  bool startStreaming();
 
   /**
    * Get image width of thermal channel
@@ -302,9 +320,9 @@ public:
 
 private:
 
-  void init();
-
   void calculateIntegralImage();
+
+  bool _init;
 
   unsigned int _widthIn;
 

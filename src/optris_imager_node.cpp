@@ -47,20 +47,20 @@
 
 #include <sys/stat.h>
 using namespace std;
-sensor_msgs::Image          _thermal_image;
-sensor_msgs::Image          _visible_image;
-std_msgs::Float32           _flag_temperature;
-std_msgs::Float32           _box_temperature;
-std_msgs::Float32           _chip_temperature;
+sensor_msgs::Image _thermal_image;
+sensor_msgs::Image _visible_image;
+std_msgs::Float32 _flag_temperature;
+std_msgs::Float32 _box_temperature;
+std_msgs::Float32 _chip_temperature;
 
 image_transport::Publisher* _thermal_pub;
 image_transport::Publisher* _visible_pub;
-ros::Publisher              _flag_pub;
-ros::Publisher              _box_pub;
-ros::Publisher              _chip_pub;
+ros::Publisher _flag_pub;
+ros::Publisher _box_pub;
+ros::Publisher _chip_pub;
 
-unsigned int                _img_cnt = 0;
-optris::PIImager*           _imager;
+unsigned int _img_cnt = 0;
+optris::PIImager* _imager;
 
 /**
  * Callback method from image processing library (called with configured frame rate from xml file)
@@ -70,118 +70,120 @@ optris::PIImager*           _imager;
  */
 void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h)
 {
-	memcpy(&_thermal_image.data[0], image, w*h*sizeof(*image));
+  memcpy(&_thermal_image.data[0], image, w * h * sizeof(*image));
 
-	_thermal_image.header.seq   = ++_img_cnt;
-	_thermal_image.header.stamp = ros::Time::now();
-	_thermal_pub->publish(_thermal_image);
+  _thermal_image.header.seq = ++_img_cnt;
+  _thermal_image.header.stamp = ros::Time::now();
+  _thermal_pub->publish(_thermal_image);
 
-	_flag_temperature.data = _imager->getTempFlag();
-	_box_temperature.data  = _imager->getTempBox();
-	_chip_temperature.data = _imager->getTempChip();
-	_flag_pub.publish(_flag_temperature);
-	_box_pub.publish(_box_temperature);
-	_chip_pub.publish(_chip_temperature);
+  _flag_temperature.data = _imager->getTempFlag();
+  _box_temperature.data = _imager->getTempBox();
+  _chip_temperature.data = _imager->getTempChip();
+  _flag_pub.publish(_flag_temperature);
+  _box_pub.publish(_box_temperature);
+  _chip_pub.publish(_chip_temperature);
 }
 
 void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h)
 {
-   memcpy(&_visible_image.data[0], image, 2*w*h*sizeof(*image));
+  memcpy(&_visible_image.data[0], image, 2 * w * h * sizeof(*image));
 
-   _visible_image.header.seq   = _img_cnt;
-   _visible_image.header.stamp = ros::Time::now();
-   _visible_pub->publish(_visible_image);
+  _visible_image.header.seq = _img_cnt;
+  _visible_image.header.stamp = ros::Time::now();
+  _visible_pub->publish(_visible_image);
 }
 
-bool onAutoFlag(optris_drivers::AutoFlag::Request  &req, optris_drivers::AutoFlag::Response &res)
+bool onAutoFlag(optris_drivers::AutoFlag::Request &req, optris_drivers::AutoFlag::Response &res)
 {
-	_imager->setAutoFlag(req.autoFlag);
-	return true;
+  _imager->setAutoFlag(req.autoFlag);
+  return true;
 }
 
 bool onForceFlag(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
 {
-   _imager->forceFlagEvent();
-   return true;
+  _imager->forceFlagEvent();
+  return true;
 }
 
 int main(int argc, char **argv)
 {
-	ros::init (argc, argv, "optris_imager_node");
+  ros::init(argc, argv, "optris_imager_node");
 
-	// private node handle to support command line parameters for rosrun
-	ros::NodeHandle n_("~");
+  // private node handle to support command line parameters for rosrun
+  ros::NodeHandle n_("~");
 
-	std::string xmlConfig = "";
-	n_.getParam("xmlConfig", xmlConfig);
+  std::string xmlConfig = "";
+  n_.getParam("xmlConfig", xmlConfig);
 
-	// A specific configuration file for each imager device is needed (cf. config directory)
-	struct stat s;
-	if(stat(xmlConfig.c_str(), &s) != 0)
-	{
-		std::cerr << "usage: rosrun <package> <node> _xmlConfig:=<xmlConfig>" << std::endl;
-		std::cerr << " verify that <xmlConfig> exists" << std::endl;
-		return -1;
-	}
+  // A specific configuration file for each imager device is needed (cf. config directory)
+  struct stat s;
+  if(stat(xmlConfig.c_str(), &s) != 0)
+  {
+    std::cerr << "usage: rosrun <package> <node> _xmlConfig:=<xmlConfig>" << std::endl;
+    std::cerr << " verify that <xmlConfig> exists" << std::endl;
+    return -1;
+  }
 
-	ros::NodeHandle n;
+  ros::NodeHandle n;
 
-	_imager = new optris::PIImager(xmlConfig.c_str());
+  _imager = new optris::PIImager(xmlConfig.c_str());
 
-	unsigned char* bufferRaw = new unsigned char[_imager->getRawBufferSize()];
+  unsigned char* bufferRaw = new unsigned char[_imager->getRawBufferSize()];
 
-    image_transport::ImageTransport it(n);
+  image_transport::ImageTransport it(n);
 
-	_imager->setFrameCallback(onThermalFrame);
+  _imager->setFrameCallback(onThermalFrame);
 
-	image_transport::Publisher tpub  = it.advertise("thermal_image", 1);
-	_thermal_pub = &tpub;
+  image_transport::Publisher tpub = it.advertise("thermal_image", 1);
+  _thermal_pub = &tpub;
 
-	_thermal_image.header.frame_id = "thermal_image";
-	_thermal_image.height          = _imager->getHeight();
-	_thermal_image.width 	       = _imager->getWidth();
-	_thermal_image.encoding        = "mono16";
-	_thermal_image.step		       = _thermal_image.width*2;
-	_thermal_image.data.resize(_thermal_image.height*_thermal_image.step);
+  _thermal_image.header.frame_id = "thermal_image";
+  _thermal_image.height = _imager->getHeight();
+  _thermal_image.width = _imager->getWidth();
+  _thermal_image.encoding = "mono16";
+  _thermal_image.step = _thermal_image.width * 2;
+  _thermal_image.data.resize(_thermal_image.height * _thermal_image.step);
 
-   if(_imager->hasBispectralTechnology())
-   {
-      _imager->setVisibleFrameCallback(onVisibleFrame);
+  image_transport::Publisher vpub;
 
-      image_transport::Publisher vpub = it.advertise("visible_image", 1);
-      _visible_pub = &vpub;
+  if(_imager->hasBispectralTechnology())
+  {
+    _imager->setVisibleFrameCallback(onVisibleFrame);
 
-      _visible_image.header.frame_id = "visible_image";
-      _visible_image.height          = _imager->getVisibleHeight();
-      _visible_image.width           = _imager->getVisibleWidth();
-      _visible_image.encoding        = "yuv422";
-      _visible_image.step            = _visible_image.width*2;
-      _visible_image.data.resize(_visible_image.height*_visible_image.step);
-   }
+    vpub = it.advertise("visible_image", 1);
+    _visible_pub = &vpub;
 
-   ros::ServiceServer sAuto  = n_.advertiseService("auto_flag", onAutoFlag);
-   ros::ServiceServer sForce = n_.advertiseService("force_flag", onForceFlag);
+    _visible_image.header.frame_id = "visible_image";
+    _visible_image.height = _imager->getVisibleHeight();
+    _visible_image.width = _imager->getVisibleWidth();
+    _visible_image.encoding = "yuv422";
+    _visible_image.step = _visible_image.width * 2;
+    _visible_image.data.resize(_visible_image.height * _visible_image.step);
+  }
 
-   _flag_pub = n.advertise<std_msgs::Float32>("temperature_flag" , 1);
-   _box_pub  = n.advertise<std_msgs::Float32>("temperature_box" , 1);
-   _chip_pub = n.advertise<std_msgs::Float32>("temperature_chip" , 1);
+  ros::ServiceServer sAuto = n_.advertiseService("auto_flag", onAutoFlag);
+  ros::ServiceServer sForce = n_.advertiseService("force_flag", onForceFlag);
 
-	_imager->startStreaming();
+  _flag_pub = n.advertise < std_msgs::Float32 > ("temperature_flag", 1);
+  _box_pub = n.advertise < std_msgs::Float32 > ("temperature_box", 1);
+  _chip_pub = n.advertise < std_msgs::Float32 > ("temperature_chip", 1);
 
-	// loop over acquire-process-release-publish steps
-	// Images are published in raw temperature format (unsigned short, see onFrame callback for details)
-	ros::Rate loop_rate(_imager->getMaxFramerate());
-	while (ros::ok())
-	{
-		_imager->getFrame(bufferRaw);
-		_imager->process(bufferRaw);
-		_imager->releaseFrame();
-		ros::spinOnce();
-		loop_rate.sleep();
-	}
+  _imager->startStreaming();
 
-	delete [] bufferRaw;
-	delete _imager;
+  // loop over acquire-process-release-publish steps
+  // Images are published in raw temperature format (unsigned short, see onFrame callback for details)
+  ros::Rate loop_rate(_imager->getMaxFramerate());
+  while(ros::ok())
+  {
+    _imager->getFrame(bufferRaw);
+    _imager->process(bufferRaw);
+    _imager->releaseFrame();
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
 
-	return 0;
+  delete[] bufferRaw;
+  delete _imager;
+
+  return 0;
 }
