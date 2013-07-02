@@ -13,6 +13,12 @@
   <depend package="std_srvs"/>
   <depend package="sensor_msgs"/>
   <depend package="image_transport"/>
+
+  <rosdep name="libudev-dev"/>
+
+  <export>
+    <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib/i386 -L${prefix}/lib/x86_64" />
+  </export>
 </package>
 
 
