@@ -98,7 +98,8 @@ LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/lib/${MYARCH})
 add_executable(optris_imager_node src/optris_imager_node.cpp)
 add_executable(optris_colorconvert_node src/optris_colorconvert_node.cpp)
 
-## make sure the libs are copied before trying to build the other files
+## make sure msg/srvs are generated befor building the targets
+## also, the libs must be copied before trying to build the other files
 add_dependencies(optris_imager_node ${PROJECT_NAME}_gencpp copy_PIImager copy_ImageProcessing)
 add_dependencies(optris_colorconvert_node ${PROJECT_NAME}_gencpp copy_PIImager copy_ImageProcessing)
 
@@ -129,7 +130,7 @@ target_link_libraries(optris_colorconvert_node
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
 ## Mark executables and/or libraries for installation
-install(TARGETS optris_drivers optris_colorconvert_node optris_imager_node
+install(TARGETS optris_colorconvert_node optris_imager_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
