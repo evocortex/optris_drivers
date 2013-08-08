@@ -47,9 +47,7 @@ generate_messages(
 catkin_package(
  INCLUDE_DIRS
   include
- LIBRARIES
-  PIImager
-  ImageProcessing
+# LIBRARIES
  CATKIN_DEPENDS
   roscpp
   std_msgs
