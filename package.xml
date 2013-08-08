@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<package>
+  <name>optris_drivers</name>
+  <version>0.0.0</version>
+  <description>
+    Wrapper for Optris thermal imager library
+    ROS nodes wrapping the binary driver for Optris thermal imager devices.
+
+    64-Bit platform supported by Fraunhofer IPA (www.ipa.fraunhofer.de)
+  </description>
+
+  <!-- One maintainer tag required, multiple allowed, one person per tag -->
+  <!-- Example:  -->
+  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
+  <maintainer email="stefan.may@ohm-hochschule.de">Stefan May</maintainer>
+
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <license>BSD</license>
+
+  <!-- Url tags are optional, but mutiple are allowed, one per tag -->
+  <!-- Optional attribute type can be: website, bugtracker, or repository -->
+  <url type="website">http://ros.org/wiki/optris_drivers</url>
+
+  <!-- Author tags are optional, mutiple are allowed, one per tag -->
+  <!-- Authors do not have to be maintianers, but could be -->
+  <author email="stefan.may@ohm-hochschule.de">Stefan May (Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de)</author>
+
+  <!-- Buildtool dependencies -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- build dependencies -->
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>message_generation</build_depend>
+
+  <build_depend>libudev-dev</build_depend>
+
+  <!-- runtime dependencies -->
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>std_srvs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>image_transport</run_depend>
+  <run_depend>message_runtime</run_depend>
+
+  <run_depend>libudev-dev</run_depend>
+
+</package>
+
