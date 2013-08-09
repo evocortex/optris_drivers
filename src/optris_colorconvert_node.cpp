@@ -52,103 +52,103 @@ optris::EnumOptrisColoringPalette _palette;
 
 void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
 {
-	if(_bufferThermal==NULL)
-        _bufferThermal = new unsigned char[image->width * image->height * 3];
+  if(_bufferThermal==NULL)
+    _bufferThermal = new unsigned char[image->width * image->height * 3];
 
-	_iBuilder.setSize(image->width, image->height, false);
+  _iBuilder.setSize(image->width, image->height, false);
 
-	const unsigned char* data = &image->data[0];
-	_iBuilder.convertTemperatureToPaletteImage((unsigned short*)data, _bufferThermal);
+  const unsigned char* data = &image->data[0];
+  _iBuilder.convertTemperatureToPaletteImage((unsigned short*)data, _bufferThermal);
 
-	sensor_msgs::Image img;
-	img.header.frame_id = "thermal_image_view";
-	img.height 	        = image->height;
-	img.width 	        = image->width;
-	img.encoding        = "rgb8";
-	img.step            = image->width*3;
-	img.data.resize(img.height*img.step);
+  sensor_msgs::Image img;
+  img.header.frame_id = "thermal_image_view";
+  img.height 	        = image->height;
+  img.width 	        = image->width;
+  img.encoding        = "rgb8";
+  img.step            = image->width*3;
+  img.data.resize(img.height*img.step);
 
-	img.header.seq      = ++_frame;
-	img.header.stamp    = ros::Time::now();
+  img.header.seq      = ++_frame;
+  img.header.stamp    = ros::Time::now();
 
-	for(unsigned int i=0; i<image->width*image->height*3; i++)
-	{
-        img.data[i] = _bufferThermal[i];
-	}
+  for(unsigned int i=0; i<image->width*image->height*3; i++)
+  {
+    img.data[i] = _bufferThermal[i];
+  }
 
-	_pubThermal->publish(img);
+  _pubThermal->publish(img);
 }
 
 void onVisibleDataReceive(const sensor_msgs::ImageConstPtr& image)
 {
-   if(_bufferVisible==NULL)
-        _bufferVisible = new unsigned char[image->width * image->height * 3];
+  if(_bufferVisible==NULL)
+    _bufferVisible = new unsigned char[image->width * image->height * 3];
 
-   const unsigned char* data = &image->data[0];
-   _iBuilder.yuv422torgb24(data, _bufferVisible, image->width, image->height);
+  const unsigned char* data = &image->data[0];
+  _iBuilder.yuv422torgb24(data, _bufferVisible, image->width, image->height);
 
-   sensor_msgs::Image img;
-   img.header.frame_id = "visible_image_view";
-   img.height          = image->height;
-   img.width           = image->width;
-   img.encoding        = "rgb8";
-   img.step            = image->width*3;
-   img.data.resize(img.height*img.step);
+  sensor_msgs::Image img;
+  img.header.frame_id = "visible_image_view";
+  img.height          = image->height;
+  img.width           = image->width;
+  img.encoding        = "rgb8";
+  img.step            = image->width*3;
+  img.data.resize(img.height*img.step);
 
-   img.header.seq      = _frame;
-   img.header.stamp    = ros::Time::now();
+  img.header.seq      = _frame;
+  img.header.stamp    = ros::Time::now();
 
-   for(unsigned int i=0; i<image->width*image->height*3; i++)
-   {
-        img.data[i] = _bufferVisible[i];
-   }
+  for(unsigned int i=0; i<image->width*image->height*3; i++)
+  {
+    img.data[i] = _bufferVisible[i];
+  }
 
-   _pubVisible->publish(img);
+  _pubVisible->publish(img);
 }
 
 int main (int argc, char* argv[])
 {
-	ros::init (argc, argv, "optris_colorconvert_node");
+  ros::init (argc, argv, "optris_colorconvert_node");
 
-	// private node handle to support command line parameters for rosrun
-	ros::NodeHandle n_("~");
+  // private node handle to support command line parameters for rosrun
+  ros::NodeHandle n_("~");
 
-	int palette = 6;
-	n_.getParam("palette", palette);
-	_palette = (optris::EnumOptrisColoringPalette) palette;
+  int palette = 6;
+  n_.getParam("palette", palette);
+  _palette = (optris::EnumOptrisColoringPalette) palette;
 
-	optris::EnumOptrisPaletteScalingMethod scalingMethod = optris::eMinMax;
-	int sm;
-	n_.getParam("paletteScaling", sm);
-	if(sm>=1 && sm <=4) scalingMethod = (optris::EnumOptrisPaletteScalingMethod) sm;
+  optris::EnumOptrisPaletteScalingMethod scalingMethod = optris::eMinMax;
+  int sm;
+  n_.getParam("paletteScaling", sm);
+  if(sm>=1 && sm <=4) scalingMethod = (optris::EnumOptrisPaletteScalingMethod) sm;
 
-	_iBuilder.setPaletteScalingMethod(scalingMethod);
-	_iBuilder.setPalette(_palette);
+  _iBuilder.setPaletteScalingMethod(scalingMethod);
+  _iBuilder.setPalette(_palette);
 
-	double tMin = 20.;
-	double tMax = 40.;
-	n_.getParam("temperatureMin", tMin);
-	n_.getParam("temperatureMax", tMax);
-	_iBuilder.setManualTemperatureRange((float)tMin, (float)tMax);
+  double tMin = 20.;
+  double tMax = 40.;
+  n_.getParam("temperatureMin", tMin);
+  n_.getParam("temperatureMax", tMax);
+  _iBuilder.setManualTemperatureRange((float)tMin, (float)tMax);
 
-	ros::NodeHandle n;
-	image_transport::ImageTransport it(n);
-	image_transport::Subscriber subThermal = it.subscribe("thermal_image", 1, onThermalDataReceive);
-	image_transport::Subscriber subVisible = it.subscribe("visible_image", 1, onVisibleDataReceive);
+  ros::NodeHandle n;
+  image_transport::ImageTransport it(n);
+  image_transport::Subscriber subThermal = it.subscribe("thermal_image", 1, onThermalDataReceive);
+  image_transport::Subscriber subVisible = it.subscribe("visible_image", 1, onVisibleDataReceive);
 
-    image_transport::Publisher pubt = it.advertise("thermal_image_view", 1);
-    image_transport::Publisher pubv = it.advertise("visible_image_view", 1);
-    _pubThermal = &pubt;
-    _pubVisible = &pubv;
+  image_transport::Publisher pubt = it.advertise("thermal_image_view", 1);
+  image_transport::Publisher pubv = it.advertise("visible_image_view", 1);
+  _pubThermal = &pubt;
+  _pubVisible = &pubv;
 
-	// specify loop rate: a meaningful value according to your publisher configuration
-	ros::Rate loop_rate(30);
-	while (ros::ok())
-	{
-        ros::spinOnce();
-        loop_rate.sleep();
-	}
+  // specify loop rate: a meaningful value according to your publisher configuration
+  ros::Rate loop_rate(30);
+  while (ros::ok())
+  {
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
 
-	if(_bufferThermal)	delete [] _bufferThermal;
-	if(_bufferVisible)  delete [] _bufferVisible;
+  if(_bufferThermal)	delete [] _bufferThermal;
+  if(_bufferVisible)  delete [] _bufferVisible;
 }

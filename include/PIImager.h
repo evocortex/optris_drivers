@@ -79,7 +79,7 @@ public:
   bool isOpen();
 
   /**
-   * Check existance of calibration file set
+   * Check existence of calibration file set
    * @param[in] serial Serial number to be checked
    * @return missing files as comma separated list
    */
