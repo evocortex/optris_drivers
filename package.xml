@@ -5,8 +5,9 @@
   <description>
     Wrapper for Optris thermal imager library
     ROS nodes wrapping the binary driver for Optris thermal imager devices.
-
-    64-Bit platform supported by Fraunhofer IPA (www.ipa.fraunhofer.de)
+    
+    Developed by Stefan May (Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de).
+    64-Bit platform supported by Fraunhofer IPA (www.ipa.fraunhofer.de).
   </description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
@@ -23,7 +24,7 @@
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
   <!-- Authors do not have to be maintianers, but could be -->
-  <author email="stefan.may@ohm-hochschule.de">Stefan May (Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de)</author>
+  <author email="stefan.may@ohm-hochschule.de">Stefan May</author>
 
   <!-- Buildtool dependencies -->
   <buildtool_depend>catkin</buildtool_depend>
