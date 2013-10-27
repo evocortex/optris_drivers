@@ -18,6 +18,15 @@
 namespace optris
 {
 
+struct ExtremalRegion
+{
+  float t;
+  int u1;
+  int v1;
+  int u2;
+  int v2;
+};
+
 enum EnumOptrisColoringPalette{eAlarmBlue   = 1,
 							   eAlarmBlueHi = 2,
 							   eGrayBW      = 3,
@@ -47,12 +56,65 @@ public:
   /**
    * Standard constructor
    */
-	ImageBuilder();
+	ImageBuilder(bool alignStride=true);
 
   /**
    * Standard destructor
    */
   ~ImageBuilder();
+
+  /**
+   * Set new data
+   * @param[in] width image width
+   * @param[in] height image height
+   * @param[in] data image data
+   */
+  void setData(unsigned int width, unsigned int height, unsigned short* data);
+
+  /**
+   * Get image width
+   * @return image width
+   */
+  unsigned int getWidth();
+
+  /**
+   * Get image height
+   * @return image height
+   */
+  unsigned int getHeight();
+
+  /**
+   * Get temperature from last acquired image at specified image index
+   * @param[in] index Image index (must be within [0; getWidth()*getHeight()])
+   * return temperature in degree Celsius
+   */
+  float getTemperatureAt(int index);
+
+  /**
+   * Get temperature from last acquired image at specified image coordinates
+   * @param[in] u Image column (must be within [0; getWidth()])
+   * @param[in] v Image row (must be within [0; getHeight()])
+   * return temperature in degree Celsius
+   */
+  float getTemperatureAt(int u, int v);
+
+  /**
+   * Get mean temperature of rectangular measuring field
+   * @param[in] u1 u-component of image coordinate, i. e. column of 1st point
+   * @param[in] v1 v-component of image coordinate, i. e. row of 1st point
+   * @param[in] u2 u-component of image coordinate, i. e. column of 2nd point
+   * @param[in] v2 v-component of image coordinate, i. e. row of 2nd point
+   * @return mean temperature
+   */
+  float getMeanTemperature(int u1, int v1, int u2, int v2);
+
+  /**
+   * Get region of minimum/maximum temperature with given radius
+   * @param[in] radius Radius of region
+   * @param[out] minRegion Region of minimum mean temperature
+   * @param[out] maxRegion Region of maximum mean temperature
+   */
+  void getMinMaxRegion(int radius, ExtremalRegion* minRegion, ExtremalRegion* maxRegion);
 
   /**
    * Set temperature range for manual scaling method
@@ -86,14 +148,6 @@ public:
   EnumOptrisPaletteScalingMethod getPaletteScalingMethod();
 
   /**
-   * Set the size of Imager-Matrix
-   * @param[in] width Image width
-   * @param[in] height Image height
-   * @param[in] alginStride activate memory alignment (multiple of 4)
-   */
-  void setSize(unsigned int width, unsigned int height, bool alignStride=true);
-
-  /**
    * If memory alignment is needed, this class provides a stride parameter configured with setSize(...).
    * Memory will be aligned such that the image width is a multiple of 4
    */
@@ -118,21 +172,32 @@ public:
   void getPaletteTable(paletteTable& table);
 
   /**
+   * Fill lookup table for false color conversion.
+   * @param[out] lut lookup table
+   */
+  void fillPaletteLookup(unsigned int lut[65536]);
+
+  /**
    * Image conversion to rgb
-   * @param[in] src Source image (short-Format)
    * @param[out] dst Destination image
    */
-  void convertTemperatureToPaletteImage(unsigned short* src, unsigned char* dst);
+  void convertTemperatureToPaletteImage(unsigned char* dst);
+
+  /**
+   * Image conversion to rgb with lookup table. This method is efficient, but works only with fixed temperature ranges (manual mode).
+   * @param[in] lut lookup table
+   * @param[out] dst Destination image
+   */
+  void convertTemperatureToPaletteImage(unsigned int lut[65536], unsigned char* dst);
 
   /**
    * calculate histogram
-   * @param[in] src source data, i.e. temperature data
    * @param[out] hist histogram
    * @param[in] histsize number of quantization steps
    * @param[in] tMin minimum temperature
    * @param[in] tMax maximum temperature
    */
-  void calcHistogram(unsigned short* src, unsigned int* hist, unsigned int histsize, int tMin, int tMax);
+  void calcHistogram(unsigned int* hist, unsigned int histsize, int tMin, int tMax);
 
   /**
    * Draw crosshair to the center of image
@@ -153,18 +218,28 @@ public:
 
 private:
 
+  void calculateIntegralImage();
+
   /**
    * Calculate scaling boundaries based on minimal and maximal temperature
-   * @param[in] src Thermal image
    */
-  void calcMinMaxScalingFactor(unsigned short* src);
+  void calcMinMaxScalingFactor();
 
   /**
    * Calculate scaling boundaries based on standard deviation
-   * @param[in] src Thermal image
    * @param[in] sigma Multiplication factor for sigma range
    */
-  void calcSigmaScalingFactor(unsigned short* src, float sigma);
+  void calcSigmaScalingFactor(float sigma);
+
+  /**
+   * Image data
+   */
+  unsigned short* _data;
+
+  /**
+   * Integral image
+   */
+  unsigned long* _integral;
 
   /**
    * Variable indicating the temperature range scaling method
@@ -206,6 +281,15 @@ private:
    */
   EnumOptrisColoringPalette _palette;
 
+  /**
+   * Memory alignment
+   */
+  bool _alignStride;
+
+  /**
+   * Flag for recomputation of integral image
+   */
+  bool _integralIsDirty;
 };
 
 }
