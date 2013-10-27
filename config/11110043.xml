@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <imager xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<serial>11110043</serial>   <!-- Provide serial number, if you attach more than one camera -->
 	<fov>48</fov>
 	<temperature>
 		<min>-20</min>
