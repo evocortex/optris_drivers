@@ -180,8 +180,9 @@ public:
   /**
    * Image conversion to rgb
    * @param[out] dst Destination image
+   * @param[in] by default columns are multiple of 4, i.e., stride is added
    */
-  void convertTemperatureToPaletteImage(unsigned char* dst);
+  void convertTemperatureToPaletteImage(unsigned char* dst, bool ignoreStride=false);
 
   /**
    * Image conversion to rgb with lookup table. This method is efficient, but works only with fixed temperature ranges (manual mode).
