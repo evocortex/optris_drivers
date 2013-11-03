@@ -160,7 +160,7 @@ public:
    */
   int acquire(unsigned short* buffer);
 
-  void yield();
+  //void yield();
 
   /**
    * Get energy buffer of previously acquired frame
@@ -193,12 +193,6 @@ public:
    * Release frame bound with getFrame of acquire method (needs to be called within the grabbing loop)
    */
   void releaseFrame();
-
-  /**
-   * Get framrate calculated over the last 10 frames
-   * @return Framerate in frames/second
-   */
-  float getAverageFramerate();
 
   /**
    * Process raw data

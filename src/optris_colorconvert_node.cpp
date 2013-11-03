@@ -52,14 +52,13 @@ optris::EnumOptrisColoringPalette _palette;
 
 void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
 {
+  unsigned short* data = (unsigned short*)&image->data[0];
+  _iBuilder.setData(image->width, image->height, data);
+
   if(_bufferThermal==NULL)
     _bufferThermal = new unsigned char[image->width * image->height * 3];
 
-  unsigned short* data = (unsigned short*)&image->data[0];
-
-  _iBuilder.setData(image->width, image->height, data);
-
-  _iBuilder.convertTemperatureToPaletteImage(_bufferThermal);
+  _iBuilder.convertTemperatureToPaletteImage(_bufferThermal, true);
 
   sensor_msgs::Image img;
   img.header.frame_id = "thermal_image_view";
@@ -68,7 +67,6 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
   img.encoding        = "rgb8";
   img.step            = image->width*3;
   img.data.resize(img.height*img.step);
-
   img.header.seq      = ++_frame;
   img.header.stamp    = ros::Time::now();
 
