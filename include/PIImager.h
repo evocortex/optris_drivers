@@ -18,11 +18,18 @@
 enum EnumControlInterface {HIDController=1, UVCController=2};
 enum EnumOutputMode {Energy=1, Temperature=2};
 
+class ImagerUVC;
+class BaseControlDevice;
+class NewFrameBuffer;
+class ImageProcessing;
+
 namespace optris
 {
 
 typedef void (*fptrOptrisFrame)(unsigned short* data, unsigned int w, unsigned int h);
 typedef void (*fptrOptrisVisibleFrame)(unsigned char* data, unsigned int w, unsigned int h);
+
+class Timer;
 
 /**
  * @class PIImager
@@ -156,7 +163,7 @@ public:
   /**
    * Get thermal image (Temperature can be calculated with ((float)val-1000.f)/10.f)
    * @param[out] Output buffer (needs to be allocated outside having the size of getWidth()*getHeight())
-   * @return success flag (==0)
+   * @return success flag (==1), else (==-1)
    */
   int acquire(unsigned short* buffer);
 
@@ -243,6 +250,11 @@ public:
   float getTempChip();
 
   /**
+   * Internal method not to be used from any application
+   */
+  void onFlagState(unsigned int flagstate);
+
+  /**
    * Internal method not to be used from any application!
    */
   void onThermalFrameInit(unsigned int width, unsigned int height);
@@ -325,6 +337,18 @@ private:
   float _tFlag;
 
   int _bispectral;
+
+  Timer* _t;
+
+  ImagerUVC* _uvc;
+
+  BaseControlDevice* _udev;
+
+  unsigned int _flagstate;
+
+  NewFrameBuffer* _SGBuffer;
+
+  ImageProcessing* _ip;
 };
 
 }
