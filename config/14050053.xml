@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<imager xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<serial>14050053</serial>   <!-- Provide serial number, if you attach more than one camera -->
+	<fov>38</fov>
+	<temperature>
+		<min>-20</min>
+		<max>100</max>
+	</temperature>
+	<framerate>30.0</framerate> <!-- scaled down frame rate, must be less or equal than camera frame rate -->
+	<controller>1</controller>  <!-- 1=HID, 2=UVC -->
+	<outputmode>2</outputmode>  <!-- 1=Energy, 2=Temperature -->
+	<bispectral>0</bispectral>  <!-- 0=only thermal sensor, 1=bispectral technology (only PI200/PI230) -->
+</imager>
