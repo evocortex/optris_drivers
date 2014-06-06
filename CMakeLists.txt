@@ -77,46 +77,28 @@ else(“${CMAKE_SYSTEM_PROCESSOR}” STREQUAL “x86_64”)
   set(MYARCH "i386")
 endif(“${CMAKE_SYSTEM_PROCESSOR}” STREQUAL “x86_64”)
 
-message(STATUS "Copying ${PROJECT_SOURCE_DIR}/lib/${MYARCH}/* to ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_LIB_DESTINATION}")
-
-## Copy the libs depending on the architecture (for exporting)
-add_custom_target(
-  copy_PIImager ALL
-  COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/lib/${MYARCH}/libPIImager.a ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_LIB_DESTINATION}
+link_directories(${PROJECT_SOURCE_DIR}/lib/${MYARCH}
 )
-add_custom_target(
-  copy_ImageProcessing ALL
-  COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/lib/${MYARCH}/libImageProcessing.a ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_LIB_DESTINATION}
-)
-
-## set the correct link directory depending on the architecture
-LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/lib/${MYARCH})
 
 ## Declare a cpp executable
 add_executable(optris_imager_node src/optris_imager_node.cpp)
 add_executable(optris_colorconvert_node src/optris_colorconvert_node.cpp)
 
-## make sure msg/srvs are generated befor building the targets
-## also, the libs must be copied before trying to build the other files
-add_dependencies(optris_imager_node ${PROJECT_NAME}_gencpp copy_PIImager copy_ImageProcessing)
-add_dependencies(optris_colorconvert_node ${PROJECT_NAME}_gencpp copy_PIImager copy_ImageProcessing)
-
-
 ## Specify libraries to link a library or executable target against
-target_link_libraries(optris_imager_node
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-  PIImager
-  ImageProcessing
-  udev
+target_link_libraries(
+   optris_imager_node
+   PIImager
+   ImageProcessing 
+   udev
+   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(optris_colorconvert_node
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-  PIImager
-  ImageProcessing
-  udev
+target_link_libraries(
+   optris_colorconvert_node
+   PIImager
+   ImageProcessing 
+   udev
+   ${catkin_LIBRARIES}
 )
 
 

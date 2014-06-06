@@ -3,17 +3,11 @@
   <name>optris_drivers</name>
   <version>0.0.0</version>
   <description>
-    Wrapper for Optris thermal imager library
-    ROS nodes wrapping the binary driver for Optris thermal imager devices.
-    
-    Developed by Stefan May (Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de).
-    64-Bit platform supported by Fraunhofer IPA (www.ipa.fraunhofer.de).
-  </description>
 
-  <!-- One maintainer tag required, multiple allowed, one person per tag -->
-  <!-- Example:  -->
-  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="not@given.yet">Stefan May</maintainer>
+     ROS nodes wrapping the binary driver for Optris thermal imager devices.
+
+  </description>
+  <maintainer email="not@given.yet">Stefan May(Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de)</maintainer>
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <license>BSD</license>
@@ -24,7 +18,10 @@
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
   <!-- Authors do not have to be maintianers, but could be -->
-  <author>Stefan May</author>
+  
+  <author>Stefan May (Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de)</author>
+  <author>64-Bit platform supported by Fraunhofer IPA (www.ipa.fraunhofer.de)</author>
+  <author>Support for ROS hydro migration by Christopher-Eyk Hrabia (DAI-Labor, Technische Universität Berlin)</author>
 
   <!-- Buildtool dependencies -->
   <buildtool_depend>catkin</buildtool_depend>
