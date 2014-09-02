@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package>
+  <name>optris_drivers</name>
+  <version>0.0.0</version>
+  <description>ROS nodes wrapping the binary driver for Optris thermal imager devices. 64-Bit platform supported by Fraunhofer IPA (www.ipa.fraunhofer.de)</description>
+
+  <maintainer email="Stefan.May@th-nuernberg.de">Stefan May</maintainer>
+  <maintainer email="stephen.vidas@gmail.com">Stephen Vidas</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://wiki.ros.org/optris_drivers</url> -->
+
+  <author>Stefan May (Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de)</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>image_transport</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+  
+  <run_depend>image_transport</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>std_srvs</run_depend>
+
+  <!-- <rosdep name="libudev-dev"/> -->
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib/i386 -L${prefix}/lib/x86_64" />
+  </export>
+</package>
