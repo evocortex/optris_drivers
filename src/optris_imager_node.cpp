@@ -63,7 +63,7 @@ unsigned int _img_cnt = 0;
 optris::PIImager* _imager;
 
 /**
- * Callback method from image processing library (called with configured frame rate from xml file)
+ * Callback method from image processing library (called at configured frame rate in xml file)
  * @param[in] image thermal image in unsigned short format, i.e., float temperature = ((float)image[i] -1000.f)/10.f)
  * @param[in] w image width
  * @param[in] h image height
