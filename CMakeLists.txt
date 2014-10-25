@@ -46,6 +46,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS
+  include
 # LIBRARIES
  CATKIN_DEPENDS
   roscpp
@@ -63,32 +64,41 @@ catkin_package(
 ## Build ##
 ###########
 
+## Specify additional locations of header files
+## Your package locations should be listed before other locations
+include_directories(include)
+
+## Check which architecture we have
+if(“${CMAKE_SYSTEM_PROCESSOR}” STREQUAL “x86_64”)
+  message(STATUS "++++++++++++++++++++++++++ DETECTED 64 bit +++++++++++++++++++++++++++++++++++")
+  set(MYARCH "x86_64")
+else(“${CMAKE_SYSTEM_PROCESSOR}” STREQUAL “x86_64”)
+  message(STATUS "++++++++++++++++++++++++++ DETECTED 32 bit +++++++++++++++++++++++++++++++++++")
+  set(MYARCH "i386")
+endif(“${CMAKE_SYSTEM_PROCESSOR}” STREQUAL “x86_64”)
+
+link_directories(${PROJECT_SOURCE_DIR}/lib/${MYARCH}
+)
+
 ## Declare a cpp executable
 add_executable(optris_imager_node src/optris_imager_node.cpp)
 add_executable(optris_colorconvert_node src/optris_colorconvert_node.cpp)
 
-## make sure msg/srvs are generated before building the targets
-## also, the libs must be copied before trying to build the other files
-add_dependencies(optris_imager_node irimager irimageprocessing)
-add_dependencies(optris_colorconvert_node irimager irimageprocessing)
-
-
 ## Specify libraries to link a library or executable target against
-target_link_libraries(optris_imager_node
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-  irimager
-  irimageprocessing
-  udev
-  pthread
+target_link_libraries(
+   optris_imager_node
+   PIImager
+   ImageProcessing 
+   udev
+   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(optris_colorconvert_node
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-  irimager
-  irimageprocessing
-  udev
+target_link_libraries(
+   optris_colorconvert_node
+   PIImager
+   ImageProcessing 
+   udev
+   ${catkin_LIBRARIES}
 )
 
 
