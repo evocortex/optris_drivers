@@ -80,6 +80,7 @@ target_link_libraries(optris_imager_node
   irimager
   irimageprocessing
   udev
+  pthread
 )
 
 target_link_libraries(optris_colorconvert_node
