@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package>
   <name>optris_drivers</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>
 
      ROS nodes wrapping the binary driver for Optris thermal imager devices.
 
   </description>
-  <maintainer email="not@given.yet">Stefan May(Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de)</maintainer>
+  <maintainer email="stefan dot may at th-nuernberg dot de">Stefan May(Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de)</maintainer>
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <license>BSD</license>
@@ -33,8 +33,8 @@
   <build_depend>sensor_msgs</build_depend>
   <build_depend>image_transport</build_depend>
   <build_depend>message_generation</build_depend>
-
   <build_depend>libudev-dev</build_depend>
+  <build_depend>libirimager</build_depend>
 
   <!-- runtime dependencies -->
   <run_depend>roscpp</run_depend>
@@ -43,8 +43,6 @@
   <run_depend>sensor_msgs</run_depend>
   <run_depend>image_transport</run_depend>
   <run_depend>message_runtime</run_depend>
-
-  <run_depend>libudev-dev</run_depend>
 
 </package>
 
