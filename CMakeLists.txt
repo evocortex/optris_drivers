@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(optris_drivers)
 
+if(EXISTS "/usr/include/libirimager/IRImager.h")
+else()
+   message( FATAL_ERROR "libirimager not found. Install binary driver before compiling these ROS nodes." )
+endif()
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
