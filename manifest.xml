@@ -1,0 +1,17 @@
+<package>
+  <description brief="optris_drivers">
+
+     optris_drivers
+
+  </description>
+  <author>Stefan May</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/optris_drivers</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="image_transport"/>
+
+</package>
+
+

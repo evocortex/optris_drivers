@@ -42,8 +42,8 @@
 #include "std_srvs/Empty.h"
 #include "optris_drivers/AutoFlag.h"
 
-#include "libirimager/IRImager.h"
-#include "libirimager/ImageBuilder.h"
+#include "PIImager.h"
+#include "ImageBuilder.h"
 
 #include <sys/stat.h>
 using namespace std;
@@ -60,7 +60,7 @@ ros::Publisher _box_pub;
 ros::Publisher _chip_pub;
 
 unsigned int _img_cnt = 0;
-optris::IRImager* _imager;
+optris::PIImager* _imager;
 
 /**
  * Callback method from image processing library (called at configured frame rate in xml file)
@@ -68,7 +68,7 @@ optris::IRImager* _imager;
  * @param[in] w image width
  * @param[in] h image height
  */
-void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long long timestamp)
+void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h)
 {
   memcpy(&_thermal_image.data[0], image, w * h * sizeof(*image));
 
@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  _imager = new optris::IRImager(xmlConfig.c_str());
+  _imager = new optris::PIImager(xmlConfig.c_str());
 
   unsigned char* bufferRaw = new unsigned char[_imager->getRawBufferSize()];
 

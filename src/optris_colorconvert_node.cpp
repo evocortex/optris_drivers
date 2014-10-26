@@ -39,7 +39,7 @@
 #include "ros/ros.h"
 #include <image_transport/image_transport.h>
 
-#include "libirimager/ImageBuilder.h"
+#include "ImageBuilder.h"
 
 unsigned char*                    _bufferThermal = NULL;
 unsigned char*                    _bufferVisible = NULL;
