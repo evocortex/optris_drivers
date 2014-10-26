@@ -35,4 +35,3 @@ LINK_LIBRARIES(PIImager ImageProcessing udev)
 
 rosbuild_add_executable(optris_imager_node src/optris_imager_node.cpp)
 rosbuild_add_executable(optris_colorconvert_node src/optris_colorconvert_node.cpp)
-
