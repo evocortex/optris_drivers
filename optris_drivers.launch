@@ -1,16 +1,24 @@
 <launch>
 <group ns="optris">
-  <node name="optris_imager_node" pkg="optris_drivers" type="optris_imager_node">
+  <node name="optris_imager_node" pkg="optris_drivers" type="optris_imager_node" output="screen">
     <!-- Set configuration file of your camera here! -->
     <param name="xmlConfig"      type="string" value="$(find optris_drivers)/config/11110043.xml"/>  
   </node>
+  
+  
   <node name="optris_colorconvert_node" pkg="optris_drivers" type="optris_colorconvert_node">
     <param name="palette"        type="int"    value="6"/>     <!-- see ImageBuilder.h for valid values -->
     <param name="paletteScaling" type="int"    value="2"/>     <!-- scaling method for color conversion, see ImageBuilder.h -->
     <param name="temperatureMin" type="double" value="20"/>    <!-- set minimum temperature for fixed scaling -->
     <param name="temperatureMax" type="double" value="40"/>    <!-- set maximum temperature for fixed scaling -->
+    <param name="looprate"       type="double" value="30"/>    <!-- set frame rate to publish images -->
     <!-- Uncomment the following line, if you want to use PNG compression. Use rosrun dynamic_reconfigure reconfigure_gui to pick PNG format --> 
     <!-- <param name="image_transport" type="string" value="compressed"/> -->
   </node>
+ 
+  <!--  
+   <node name="optris_binary_image_node" pkg="optris_drivers" type="optris_binary_image_node">  </node>
+  -->
+  
 </group>
 </launch>

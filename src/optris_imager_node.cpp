@@ -47,14 +47,16 @@
 
 #include <sys/stat.h>
 using namespace std;
+
 sensor_msgs::Image _thermal_image;
 sensor_msgs::Image _visible_image;
-std_msgs::Float32 _flag_temperature;
-std_msgs::Float32 _box_temperature;
-std_msgs::Float32 _chip_temperature;
+std_msgs::Float32  _flag_temperature;
+std_msgs::Float32  _box_temperature;
+std_msgs::Float32  _chip_temperature;
 
-image_transport::Publisher* _thermal_pub;
-image_transport::Publisher* _visible_pub;
+image_transport::Publisher* _thermal_pub = NULL;
+image_transport::Publisher* _visible_pub = NULL;
+
 ros::Publisher _flag_pub;
 ros::Publisher _box_pub;
 ros::Publisher _chip_pub;
@@ -77,7 +79,7 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long 
   _thermal_pub->publish(_thermal_image);
 
   _flag_temperature.data = _imager->getTempFlag();
-  _box_temperature.data = _imager->getTempBox();
+  _box_temperature.data  = _imager->getTempBox();
   _chip_temperature.data = _imager->getTempChip();
   _flag_pub.publish(_flag_temperature);
   _box_pub.publish(_box_temperature);
@@ -86,9 +88,11 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long 
 
 void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h)
 {
+  if(_visible_pub->getNumSubscribers()==0) return;
+
   memcpy(&_visible_image.data[0], image, 2 * w * h * sizeof(*image));
 
-  _visible_image.header.seq = _img_cnt;
+  _visible_image.header.seq   = _img_cnt;
   _visible_image.header.stamp = ros::Time::now();
   _visible_pub->publish(_visible_image);
 }
@@ -138,14 +142,14 @@ int main(int argc, char **argv)
   _thermal_pub = &tpub;
 
   _thermal_image.header.frame_id = "thermal_image";
-  _thermal_image.height = _imager->getHeight();
-  _thermal_image.width = _imager->getWidth();
-  _thermal_image.encoding = "mono16";
-  _thermal_image.step = _thermal_image.width * 2;
+  _thermal_image.height          = _imager->getHeight();
+  _thermal_image.width           = _imager->getWidth();
+  _thermal_image.encoding        = "mono16";
+  _thermal_image.step            = _thermal_image.width * 2;
   _thermal_image.data.resize(_thermal_image.height * _thermal_image.step);
 
-  image_transport::Publisher vpub;
 
+  image_transport::Publisher vpub;
   if(_imager->hasBispectralTechnology())
   {
     _imager->setVisibleFrameCallback(onVisibleFrame);
@@ -154,19 +158,20 @@ int main(int argc, char **argv)
     _visible_pub = &vpub;
 
     _visible_image.header.frame_id = "visible_image";
-    _visible_image.height = _imager->getVisibleHeight();
-    _visible_image.width = _imager->getVisibleWidth();
-    _visible_image.encoding = "yuv422";
-    _visible_image.step = _visible_image.width * 2;
+    _visible_image.height          = _imager->getVisibleHeight();
+    _visible_image.width           = _imager->getVisibleWidth();
+    _visible_image.encoding        = "yuv422";
+    _visible_image.step            = _visible_image.width * 2;
     _visible_image.data.resize(_visible_image.height * _visible_image.step);
   }
 
-  ros::ServiceServer sAuto = n_.advertiseService("auto_flag", onAutoFlag);
+  ros::ServiceServer sAuto  = n_.advertiseService("auto_flag",  onAutoFlag);
   ros::ServiceServer sForce = n_.advertiseService("force_flag", onForceFlag);
 
-  _flag_pub = n.advertise < std_msgs::Float32 > ("temperature_flag", 1);
-  _box_pub = n.advertise < std_msgs::Float32 > ("temperature_box", 1);
-  _chip_pub = n.advertise < std_msgs::Float32 > ("temperature_chip", 1);
+  _flag_pub = n.advertise <std_msgs::Float32> ("temperature_flag", 1);
+  _box_pub  = n.advertise <std_msgs::Float32> ("temperature_box", 1);
+  _chip_pub = n.advertise <std_msgs::Float32> ("temperature_chip", 1);
+
 
   _imager->startStreaming();
 
@@ -181,6 +186,7 @@ int main(int argc, char **argv)
     ros::spinOnce();
     loop_rate.sleep();
   }
+  ros::shutdown();
 
   delete[] bufferRaw;
   delete _imager;

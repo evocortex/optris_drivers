@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   image_transport
   message_generation
+  dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
@@ -38,6 +39,11 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
     std_srvs
+)
+
+generate_dynamic_reconfigure_options(
+  cfg/binary.cfg
+  #...
 )
 
 ###################################
@@ -69,13 +75,15 @@ catkin_package(
 ###########
 
 ## Declare a cpp executable
-add_executable(optris_imager_node src/optris_imager_node.cpp)
+add_executable(optris_imager_node       src/optris_imager_node.cpp)
 add_executable(optris_colorconvert_node src/optris_colorconvert_node.cpp)
+add_executable(optris_binary_image_node src/optris_binary_image_node.cpp)
 
 ## make sure msg/srvs are generated before building the targets
 ## also, the libs must be copied before trying to build the other files
 add_dependencies(optris_imager_node irimager irimageprocessing)
 add_dependencies(optris_colorconvert_node irimager irimageprocessing)
+add_dependencies(optris_binary_image_node irimager irimageprocessing ${PROJECT_NAME}_gencfg)
 
 
 ## Specify libraries to link a library or executable target against
@@ -96,6 +104,14 @@ target_link_libraries(optris_colorconvert_node
   udev
 )
 
+target_link_libraries(optris_binary_image_node
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  irimager
+  irimageprocessing
+  udev
+)
+
 
 #############
 ## Install ##
@@ -106,8 +122,8 @@ target_link_libraries(optris_colorconvert_node
 
 ## Mark executables and/or libraries for installation
 install(TARGETS optris_colorconvert_node optris_imager_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  #ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  #LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

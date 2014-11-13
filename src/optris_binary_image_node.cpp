@@ -38,6 +38,9 @@
 
 #include "ros/ros.h"
 #include <image_transport/image_transport.h>
+#include <dynamic_reconfigure/server.h>
+
+#include <optris_drivers/ThresholdConfig.h>
 
 #include "libirimager/ImageBuilder.h"
 
@@ -50,70 +53,61 @@ unsigned int                      _frame = 0;
 optris::ImageBuilder              _iBuilder;
 optris::EnumOptrisColoringPalette _palette;
 
+double _threshold = 30.0;
+bool   _invert    = false;
+
 void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
 {
-   // check for any subscribers to save computation time
-  if(_pubThermal->getNumSubscribers() == 0)
-     return;
-
   unsigned short* data = (unsigned short*)&image->data[0];
-  _iBuilder.setData(image->width, image->height, data);
-
-  if(_bufferThermal==NULL)
-    _bufferThermal = new unsigned char[image->width * image->height * 3];
-
-  _iBuilder.convertTemperatureToPaletteImage(_bufferThermal, true);
 
   sensor_msgs::Image img;
   img.header.frame_id = "thermal_image_view";
-  img.height 	        = image->height;
-  img.width 	        = image->width;
-  img.encoding        = "rgb8";
-  img.step            = image->width*3;
+  img.height 	       = image->height;
+  img.width 	       = image->width;
+  img.encoding        = "mono8";
+  img.step            = image->width;
   img.data.resize(img.height*img.step);
   img.header.seq      = ++_frame;
   img.header.stamp    = ros::Time::now();
 
-  for(unsigned int i=0; i<image->width*image->height*3; i++) {
-    img.data[i] = _bufferThermal[i];
+
+  for(unsigned int i=0; i<image->width*image->height; i++)
+  {
+     const double temp = (float(data[i]) -1000.0f)/10.0f;
+
+     if(!_invert) {
+        if(temp > _threshold) img.data[i] = 0xff;
+        else                  img.data[i] = 0x00;
+     }
+     else {
+        if(temp > _threshold) img.data[i] = 0x00;
+        else                  img.data[i] = 0xff;
+     }
+
   }
 
   _pubThermal->publish(img);
 }
 
-void onVisibleDataReceive(const sensor_msgs::ImageConstPtr& image)
+void callback(optris_drivers::ThresholdConfig &config, uint32_t level)
 {
-  // check for any subscribers to save computation time
-  if(_pubVisible->getNumSubscribers() == 0)
-     return;
+  ROS_INFO("Reconfigure Request: %f %d",
+            config.threshold, config.invert);
 
-  if(_bufferVisible==NULL)
-    _bufferVisible = new unsigned char[image->width * image->height * 3];
-
-  const unsigned char* data = &image->data[0];
-  _iBuilder.yuv422torgb24(data, _bufferVisible, image->width, image->height);
-
-  sensor_msgs::Image img;
-  img.header.frame_id = "visible_image_view";
-  img.height          = image->height;
-  img.width           = image->width;
-  img.encoding        = "rgb8";
-  img.step            = image->width*3;
-  img.data.resize(img.height*img.step);
-
-  img.header.seq      = _frame;
-  img.header.stamp    = ros::Time::now();
-
-  for(unsigned int i=0; i<image->width*image->height*3; i++) {
-    img.data[i] = _bufferVisible[i];
-  }
-
-  _pubVisible->publish(img);
+  _threshold = config.threshold;
+  _invert    = config.invert;
 }
+
 
 int main (int argc, char* argv[])
 {
-  ros::init (argc, argv, "optris_colorconvert_node");
+  ros::init (argc, argv, "optris_binary_image_node");
+
+  dynamic_reconfigure::Server<optris_drivers::ThresholdConfig> server;
+  dynamic_reconfigure::Server<optris_drivers::ThresholdConfig>::CallbackType f;
+
+  f = boost::bind(&callback, _1, _2);
+  server.setCallback(f);
 
   // private node handle to support command line parameters for rosrun
   ros::NodeHandle n_("~");
@@ -130,38 +124,18 @@ int main (int argc, char* argv[])
   _iBuilder.setPaletteScalingMethod(scalingMethod);
   _iBuilder.setPalette(_palette);
 
-  double tMin     = 20.;
-  double tMax     = 40.;
-  double looprate = 30.;
-
-  n_.getParam("temperatureMin", tMin);
-  n_.getParam("temperatureMax", tMax);
-  n_.getParam("looprate",       looprate);
-
-  _iBuilder.setManualTemperatureRange((float)tMin, (float)tMax);
+  double tMax = 40.;
+  n_.getParam("threshold", _threshold);
+//  _iBuilder.setManualTemperatureRange((float)tMin, (float)tMax);
 
   ros::NodeHandle n;
   image_transport::ImageTransport it(n);
-  image_transport::Subscriber subThermal = it.subscribe("thermal_image", 1, onThermalDataReceive);
-  image_transport::Subscriber subVisible = it.subscribe("visible_image", 1, onVisibleDataReceive);
-
-  image_transport::Publisher pubt = it.advertise("thermal_image_view", 1);
-  image_transport::Publisher pubv = it.advertise("visible_image_view", 1);
-
+  image_transport::Subscriber subThermal = it.subscribe("thermal_image",  1, onThermalDataReceive);
+  image_transport::Publisher pubt        = it.advertise("thermal_binary", 1);
   _pubThermal = &pubt;
-  _pubVisible = &pubv;
-
-  // set to png compression
-  std::string key;
-  if(ros::param::search("thermal_image/compressed/format", key)) {
-     ros::param::set(key, "png");
-  }
-  if(ros::param::search("thermal_image/compressed/png_level", key)) {
-     ros::param::set(key, 9);
-  }
 
   // specify loop rate: a meaningful value according to your publisher configuration
-  ros::Rate loop_rate(looprate);
+  ros::Rate loop_rate(30);
   while (ros::ok())
   {
     ros::spinOnce();
