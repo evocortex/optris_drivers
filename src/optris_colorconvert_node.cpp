@@ -1,8 +1,8 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012/2013
- *  Nuremberg Institute of Technology Georg Simon Ohm
+ *  Copyright (c) 2012-2014
+ *  Technische Hochschule Nürnberg Georg Simon Ohm
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -153,10 +153,12 @@ int main (int argc, char* argv[])
 
   // set to png compression
   std::string key;
-  if(ros::param::search("thermal_image/compressed/format", key)) {
+  if(ros::param::search("thermal_image/compressed/format", key))
+  {
      ros::param::set(key, "png");
   }
-  if(ros::param::search("thermal_image/compressed/png_level", key)) {
+  if(ros::param::search("thermal_image/compressed/png_level", key))
+  {
      ros::param::set(key, 9);
   }
 

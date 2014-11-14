@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012/2013
+ *  Copyright (c) 2012-2014
  *  Nuremberg Institute of Technology Georg Simon Ohm
  *  All rights reserved.
  *
@@ -33,7 +33,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
- * Author: Stefan May
+ * Author: Christian Pfitzner
  *********************************************************************/
 
 #include "ros/ros.h"
