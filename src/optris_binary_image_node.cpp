@@ -46,9 +46,14 @@
 
 image_transport::Publisher*       _pubThermal;
 
-double _threshold = 30.0;
+double _threshold = 40.0;
 bool   _invert    = false;
 
+
+/**
+ * Callback function for receiving thermal data from thermal imager node
+ * @param image      image containing raw temperature data
+ */
 void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
 {
   static unsigned int frame = 0;
@@ -65,7 +70,7 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
   img.header.seq      = ++frame;
   img.header.stamp    = ros::Time::now();
 
-
+  // generate binary image from thermal data
   for(unsigned int i=0; i<image->width*image->height; i++)
   {
      const double temp = (float(data[i]) -1000.0f)/10.0f;
@@ -84,6 +89,12 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
   _pubThermal->publish(img);
 }
 
+
+/**
+ * Callback function for dynamic reconfigure package
+ * @param config        configuration
+ * @param level         level of configuration
+ */
 void callback(optris_drivers::ThresholdConfig &config, uint32_t level)
 {
   _threshold = config.threshold;
@@ -91,10 +102,21 @@ void callback(optris_drivers::ThresholdConfig &config, uint32_t level)
 }
 
 
+
+/**
+ * Main routine of optris_binary_image_node.cpp
+ * @param argc
+ * @param argv
+ * @return
+ *
+ * Usage:
+ * rosrun optris_drivers optris_binary_image_node _threshold=20 _invert:=false
+ */
 int main (int argc, char* argv[])
 {
   ros::init (argc, argv, "optris_binary_image_node");
 
+  // set up for dynamic reconfigure server
   dynamic_reconfigure::Server<optris_drivers::ThresholdConfig> server;
   dynamic_reconfigure::Server<optris_drivers::ThresholdConfig>::CallbackType f;
 
@@ -104,11 +126,14 @@ int main (int argc, char* argv[])
   // private node handle to support command line parameters for rosrun
   ros::NodeHandle n_("~");
 
-  double tMax = 40.;
+  // parameters for initialization
+  _threshold = 40.0;
   n_.getParam("threshold", _threshold);
-  bool invert = false;
+  _invert = false;
   n_.getParam("invert", _invert);
 
+
+  // init subscribers and publishers
   ros::NodeHandle n;
   image_transport::ImageTransport it(n);
   image_transport::Subscriber subThermal = it.subscribe("thermal_image",  1, onThermalDataReceive);
