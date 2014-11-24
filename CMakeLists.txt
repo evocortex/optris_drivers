@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS thread)
 
+
 #######################################
 ## Declare ROS messages and services ##
 #######################################
@@ -43,7 +44,6 @@ generate_messages(
 
 generate_dynamic_reconfigure_options(
   cfg/binary.cfg
-  #...
 )
 
 ###################################

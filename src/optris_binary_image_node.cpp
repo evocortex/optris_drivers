@@ -44,20 +44,15 @@
 
 #include "libirimager/ImageBuilder.h"
 
-unsigned char*                    _bufferThermal = NULL;
-unsigned char*                    _bufferVisible = NULL;
 image_transport::Publisher*       _pubThermal;
-image_transport::Publisher*       _pubVisible;
-unsigned int                      _frame = 0;
-
-optris::ImageBuilder              _iBuilder;
-optris::EnumOptrisColoringPalette _palette;
 
 double _threshold = 30.0;
 bool   _invert    = false;
 
 void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
 {
+  static unsigned int frame = 0;
+
   unsigned short* data = (unsigned short*)&image->data[0];
 
   sensor_msgs::Image img;
@@ -67,7 +62,7 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
   img.encoding        = "mono8";
   img.step            = image->width;
   img.data.resize(img.height*img.step);
-  img.header.seq      = ++_frame;
+  img.header.seq      = ++frame;
   img.header.stamp    = ros::Time::now();
 
 
@@ -91,9 +86,6 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
 
 void callback(optris_drivers::ThresholdConfig &config, uint32_t level)
 {
-  ROS_INFO("Reconfigure Request: %f %d",
-            config.threshold, config.invert);
-
   _threshold = config.threshold;
   _invert    = config.invert;
 }
@@ -112,21 +104,10 @@ int main (int argc, char* argv[])
   // private node handle to support command line parameters for rosrun
   ros::NodeHandle n_("~");
 
-  int palette = 6;
-  n_.getParam("palette", palette);
-  _palette = (optris::EnumOptrisColoringPalette) palette;
-
-  optris::EnumOptrisPaletteScalingMethod scalingMethod = optris::eMinMax;
-  int sm;
-  n_.getParam("paletteScaling", sm);
-  if(sm>=1 && sm <=4) scalingMethod = (optris::EnumOptrisPaletteScalingMethod) sm;
-
-  _iBuilder.setPaletteScalingMethod(scalingMethod);
-  _iBuilder.setPalette(_palette);
-
   double tMax = 40.;
   n_.getParam("threshold", _threshold);
-//  _iBuilder.setManualTemperatureRange((float)tMin, (float)tMax);
+  bool invert = false;
+  n_.getParam("invert", _invert);
 
   ros::NodeHandle n;
   image_transport::ImageTransport it(n);
@@ -141,7 +122,4 @@ int main (int argc, char* argv[])
     ros::spinOnce();
     loop_rate.sleep();
   }
-
-  if(_bufferThermal)	 delete [] _bufferThermal;
-  if(_bufferVisible)  delete [] _bufferVisible;
 }
