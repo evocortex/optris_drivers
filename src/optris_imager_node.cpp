@@ -52,9 +52,6 @@ using namespace std;
 
 sensor_msgs::Image _thermal_image;
 sensor_msgs::Image _visible_image;
-std_msgs::Float32  _flag_temperature;
-std_msgs::Float32  _box_temperature;
-std_msgs::Float32  _chip_temperature;
 sensor_msgs::TimeReference _optris_timer;
 optris_drivers::Temperature _internal_temperature;
 
@@ -62,9 +59,6 @@ image_transport::Publisher* _thermal_pub = NULL;
 image_transport::Publisher* _visible_pub = NULL;
 
 ros::Publisher _timer_pub;
-ros::Publisher _flag_pub;
-ros::Publisher _box_pub;
-ros::Publisher _chip_pub;
 ros::Publisher _temp_pub;
 
 unsigned int _img_cnt = 0;
@@ -95,13 +89,6 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long 
   _internal_temperature.temperature_box = _imager->getTempBox();
   _internal_temperature.temperature_chip = _imager->getTempChip();
 
-  _flag_temperature.data = _imager->getTempFlag();
-  _box_temperature.data  = _imager->getTempBox();
-  _chip_temperature.data = _imager->getTempChip();
-
-  _flag_pub.publish(_flag_temperature);
-  _box_pub.publish(_box_temperature);
-  _chip_pub.publish(_chip_temperature);
   _timer_pub.publish(_optris_timer);
   _temp_pub.publish(_internal_temperature);
 
@@ -194,10 +181,6 @@ int main(int argc, char **argv)
 
   ros::ServiceServer sAuto  = n_.advertiseService("auto_flag",  onAutoFlag);
   ros::ServiceServer sForce = n_.advertiseService("force_flag", onForceFlag);
-
-  _flag_pub = n.advertise <std_msgs::Float32> ("temperature_flag", 1);
-  _box_pub  = n.advertise <std_msgs::Float32> ("temperature_box", 1);
-  _chip_pub = n.advertise <std_msgs::Float32> ("temperature_chip", 1);
 
   //advertise all the camera Temperature in a single custom message
   _temp_pub = n.advertise <optris_drivers::Temperature> ("internal_temperature", 1);
