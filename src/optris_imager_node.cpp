@@ -38,9 +38,11 @@
 
 #include "ros/ros.h"
 #include <image_transport/image_transport.h>
+#include <sensor_msgs/TimeReference.h>
 #include "std_msgs/Float32.h"
 #include "std_srvs/Empty.h"
 #include "optris_drivers/AutoFlag.h"
+#include <optris_drivers/Temperature.h>
 
 #include "libirimager/IRImager.h"
 #include "libirimager/ImageBuilder.h"
@@ -50,16 +52,14 @@ using namespace std;
 
 sensor_msgs::Image _thermal_image;
 sensor_msgs::Image _visible_image;
-std_msgs::Float32  _flag_temperature;
-std_msgs::Float32  _box_temperature;
-std_msgs::Float32  _chip_temperature;
+sensor_msgs::TimeReference _optris_timer;
+optris_drivers::Temperature _internal_temperature;
 
 image_transport::Publisher* _thermal_pub = NULL;
 image_transport::Publisher* _visible_pub = NULL;
 
-ros::Publisher _flag_pub;
-ros::Publisher _box_pub;
-ros::Publisher _chip_pub;
+ros::Publisher _timer_pub;
+ros::Publisher _temp_pub;
 
 unsigned int _img_cnt = 0;
 optris::IRImager* _imager;
@@ -78,12 +78,20 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long 
   _thermal_image.header.stamp = ros::Time::now();
   _thermal_pub->publish(_thermal_image);
 
-  _flag_temperature.data = _imager->getTempFlag();
-  _box_temperature.data  = _imager->getTempBox();
-  _chip_temperature.data = _imager->getTempChip();
-  _flag_pub.publish(_flag_temperature);
-  _box_pub.publish(_box_temperature);
-  _chip_pub.publish(_chip_temperature);
+  _optris_timer.header.seq = _thermal_image.header.seq;
+  _optris_timer.header.stamp = _thermal_image.header.stamp;
+  _optris_timer.time_ref.fromNSec(timestamp);
+
+  _internal_temperature.header.seq=_thermal_image.header.seq;
+  _internal_temperature.header.stamp = _thermal_image.header.stamp;
+
+  _internal_temperature.temperature_flag = _imager->getTempFlag();
+  _internal_temperature.temperature_box = _imager->getTempBox();
+  _internal_temperature.temperature_chip = _imager->getTempChip();
+
+  _timer_pub.publish(_optris_timer);
+  _temp_pub.publish(_internal_temperature);
+
 }
 
 void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h)
@@ -165,12 +173,18 @@ int main(int argc, char **argv)
     _visible_image.data.resize(_visible_image.height * _visible_image.step);
   }
 
+
+  // advertise the camera internal timer
+   _timer_pub= n.advertise<sensor_msgs::TimeReference>("optris_timer", 1 );
+  _optris_timer.header.frame_id=_thermal_image.header.frame_id;
+
+
   ros::ServiceServer sAuto  = n_.advertiseService("auto_flag",  onAutoFlag);
   ros::ServiceServer sForce = n_.advertiseService("force_flag", onForceFlag);
 
-  _flag_pub = n.advertise <std_msgs::Float32> ("temperature_flag", 1);
-  _box_pub  = n.advertise <std_msgs::Float32> ("temperature_box", 1);
-  _chip_pub = n.advertise <std_msgs::Float32> ("temperature_chip", 1);
+  //advertise all the camera Temperature in a single custom message
+  _temp_pub = n.advertise <optris_drivers::Temperature> ("internal_temperature", 1);
+  _internal_temperature.header.frame_id=_thermal_image.header.frame_id;
 
 
   _imager->startStreaming();

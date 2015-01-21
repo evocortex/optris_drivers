@@ -26,6 +26,11 @@ find_package(Boost REQUIRED COMPONENTS thread)
 #######################################
 ## Declare ROS messages and services ##
 #######################################
+## Generate messages in the 'msg' folder
+add_message_files(
+  FILES
+  Temperature.msg
+)
 
 ## Generate services in the 'srv' folder
 add_service_files(
@@ -36,10 +41,14 @@ add_service_files(
     ForceFlag.srv
 )
 
+
+
+
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
     std_srvs
+    std_msgs
 )
 
 generate_dynamic_reconfigure_options(
