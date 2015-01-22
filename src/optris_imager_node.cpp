@@ -63,6 +63,7 @@ ros::Publisher _temp_pub;
 
 unsigned int _img_cnt = 0;
 optris::IRImager* _imager;
+std::string _thermalframe_id,_visibleframe_id;
 
 /**
  * Callback method from image processing library (called at configured frame rate in xml file)
@@ -124,6 +125,9 @@ int main(int argc, char **argv)
   // private node handle to support command line parameters for rosrun
   ros::NodeHandle n_("~");
 
+  n_.param<std::string>("thermal_frame_id", _thermalframe_id, "thermal_image");
+  n_.param<std::string>("visible_frame_id", _visibleframe_id, "visible_image");
+
   std::string xmlConfig = "";
   n_.getParam("xmlConfig", xmlConfig);
 
@@ -149,7 +153,7 @@ int main(int argc, char **argv)
   image_transport::Publisher tpub = it.advertise("thermal_image", 1);
   _thermal_pub = &tpub;
 
-  _thermal_image.header.frame_id = "thermal_image";
+  _thermal_image.header.frame_id = _thermalframe_id;
   _thermal_image.height          = _imager->getHeight();
   _thermal_image.width           = _imager->getWidth();
   _thermal_image.encoding        = "mono16";
@@ -165,7 +169,7 @@ int main(int argc, char **argv)
     vpub = it.advertise("visible_image", 1);
     _visible_pub = &vpub;
 
-    _visible_image.header.frame_id = "visible_image";
+    _visible_image.header.frame_id = _visibleframe_id;
     _visible_image.height          = _imager->getVisibleHeight();
     _visible_image.width           = _imager->getVisibleWidth();
     _visible_image.encoding        = "yuv422";
