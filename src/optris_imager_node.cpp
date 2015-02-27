@@ -76,7 +76,8 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long 
   memcpy(&_thermal_image.data[0], image, w * h * sizeof(*image));
 
   _thermal_image.header.seq = ++_img_cnt;
-  _thermal_image.header.stamp = ros::Time::now();
+  //_thermal_image.header.stamp = ros::Time::now();
+  _thermal_image.header.stamp.fromNSec(timestamp);
   _thermal_pub->publish(_thermal_image);
 
   _optris_timer.header.seq = _thermal_image.header.seq;
@@ -125,8 +126,9 @@ int main(int argc, char **argv)
   // private node handle to support command line parameters for rosrun
   ros::NodeHandle n_("~");
 
-  n_.param<std::string>("thermal_frame_id", _thermalframe_id, "thermal_image");
-  n_.param<std::string>("visible_frame_id", _visibleframe_id, "visible_image");
+  // Header frame_id should be optical frame of camera
+  n_.param<std::string>("thermal_frame_id", _thermalframe_id, "thermal_image_optical_frame");
+  n_.param<std::string>("visible_frame_id", _visibleframe_id, "visible_image_optical_frame");
 
   std::string xmlConfig = "";
   n_.getParam("xmlConfig", xmlConfig);
