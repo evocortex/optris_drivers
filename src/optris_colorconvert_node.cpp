@@ -43,14 +43,16 @@
 
 unsigned char*                    _bufferThermal = NULL;
 unsigned char*                    _bufferVisible = NULL;
-image_transport::Publisher*       _pubThermal;
+image_transport::CameraPublisher* _pubThermal;
 image_transport::Publisher*       _pubVisible;
 unsigned int                      _frame = 0;
 
+
+std::string _thermalimage_topic, _visibleimage_topic;
 optris::ImageBuilder              _iBuilder;
 optris::EnumOptrisColoringPalette _palette;
 
-void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
+void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image, const sensor_msgs::CameraInfoConstPtr & cam_info)
 {
    // check for any subscribers to save computation time
   if(_pubThermal->getNumSubscribers() == 0)
@@ -65,6 +67,7 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
   _iBuilder.convertTemperatureToPaletteImage(_bufferThermal, true);
 
   sensor_msgs::Image img;
+
   img.header.frame_id = "thermal_image_view";
   img.height 	        = image->height;
   img.width 	        = image->width;
@@ -72,13 +75,13 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
   img.step            = image->width*3;
   img.data.resize(img.height*img.step);
   img.header.seq      = ++_frame;
-  img.header.stamp    = ros::Time::now();
+  img.header.stamp    = image->header.stamp;
 
   for(unsigned int i=0; i<image->width*image->height*3; i++) {
     img.data[i] = _bufferThermal[i];
   }
 
-  _pubThermal->publish(img);
+  _pubThermal->publish(img,*cam_info);
 }
 
 void onVisibleDataReceive(const sensor_msgs::ImageConstPtr& image)
@@ -102,7 +105,7 @@ void onVisibleDataReceive(const sensor_msgs::ImageConstPtr& image)
   img.data.resize(img.height*img.step);
 
   img.header.seq      = _frame;
-  img.header.stamp    = ros::Time::now();
+  img.header.stamp    = image->header.stamp;
 
   for(unsigned int i=0; i<image->width*image->height*3; i++) {
     img.data[i] = _bufferVisible[i];
@@ -142,10 +145,13 @@ int main (int argc, char* argv[])
 
   ros::NodeHandle n;
   image_transport::ImageTransport it(n);
-  image_transport::Subscriber subThermal = it.subscribe("thermal_image", 1, onThermalDataReceive);
-  image_transport::Subscriber subVisible = it.subscribe("visible_image", 1, onVisibleDataReceive);
+  n_.param<std::string>("thermal_topic", _thermalimage_topic, "thermal_image");
+  n_.param<std::string>("visible_topic", _visibleimage_topic, "visible_image");
 
-  image_transport::Publisher pubt = it.advertise("thermal_image_view", 1);
+  image_transport::Subscriber subVisible = it.subscribe(_visibleimage_topic, 1, onVisibleDataReceive);
+  image_transport::CameraSubscriber subThermal= it.subscribeCamera(_thermalimage_topic, 1, onThermalDataReceive);
+
+  image_transport::CameraPublisher pubt = it.advertiseCamera("/thermal_image_view/image_raw", 1);
   image_transport::Publisher pubv = it.advertise("visible_image_view", 1);
 
   _pubThermal = &pubt;

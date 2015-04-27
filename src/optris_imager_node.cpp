@@ -38,6 +38,8 @@
 
 #include "ros/ros.h"
 #include <image_transport/image_transport.h>
+#include <camera_info_manager/camera_info_manager.h>
+#include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/TimeReference.h>
 #include "std_msgs/Float32.h"
 #include "std_srvs/Empty.h"
@@ -51,11 +53,14 @@
 using namespace std;
 
 sensor_msgs::Image _thermal_image;
+sensor_msgs::CameraInfo _thermal_camera_info;
 sensor_msgs::Image _visible_image;
+sensor_msgs::CameraInfo _visible_camera_info;
 sensor_msgs::TimeReference _optris_timer;
 optris_drivers::Temperature _internal_temperature;
 
-image_transport::Publisher* _thermal_pub = NULL;
+
+image_transport::CameraPublisher* _thermal_pub = NULL;
 image_transport::Publisher* _visible_pub = NULL;
 
 ros::Publisher _timer_pub;
@@ -64,6 +69,8 @@ ros::Publisher _temp_pub;
 unsigned int _img_cnt = 0;
 optris::IRImager* _imager;
 std::string _thermalframe_id,_visibleframe_id;
+std::string _camera_calibration_url;
+std::string _node_name;
 
 /**
  * Callback method from image processing library (called at configured frame rate in xml file)
@@ -76,9 +83,10 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long 
   memcpy(&_thermal_image.data[0], image, w * h * sizeof(*image));
 
   _thermal_image.header.seq = ++_img_cnt;
-  //_thermal_image.header.stamp = ros::Time::now();
-  _thermal_image.header.stamp.fromNSec(timestamp);
-  _thermal_pub->publish(_thermal_image);
+  _thermal_image.header.stamp = ros::Time::now();
+  _thermal_camera_info.header.stamp=_thermal_image.header.stamp;
+  //_thermal_image.header.stamp.fromNSec(timestamp);
+  _thermal_pub->publish(_thermal_image, _thermal_camera_info);
 
   _optris_timer.header.seq = _thermal_image.header.seq;
   _optris_timer.header.stamp = _thermal_image.header.stamp;
@@ -130,6 +138,24 @@ int main(int argc, char **argv)
   n_.param<std::string>("thermal_frame_id", _thermalframe_id, "thermal_image_optical_frame");
   n_.param<std::string>("visible_frame_id", _visibleframe_id, "visible_image_optical_frame");
 
+  n_.getParam("camera_name", _node_name);
+
+  // set up information manager
+   if (!n_.getParam("calibration_file", _camera_calibration_url))
+   {
+     _camera_calibration_url = "";
+   }
+
+   camera_info_manager::CameraInfoManager cinfo_manager_(n_, _node_name, _camera_calibration_url);
+   if (cinfo_manager_.isCalibrated())
+   {
+       ROS_INFO("camera has loaded calibration file");
+   }
+
+   // get current CameraInfo data
+   _thermal_camera_info = cinfo_manager_.getCameraInfo();
+   //std::cout << "width: " << _thermal_camera_info.width << std::endl;
+
   std::string xmlConfig = "";
   n_.getParam("xmlConfig", xmlConfig);
 
@@ -152,7 +178,8 @@ int main(int argc, char **argv)
 
   _imager->setFrameCallback(onThermalFrame);
 
-  image_transport::Publisher tpub = it.advertise("thermal_image", 1);
+  //image_transport::Publisher tpub = it.advertise("thermal_image", 1);
+  image_transport::CameraPublisher tpub = it.advertiseCamera("image_raw", 1);
   _thermal_pub = &tpub;
 
   _thermal_image.header.frame_id = _thermalframe_id;
@@ -161,6 +188,10 @@ int main(int argc, char **argv)
   _thermal_image.encoding        = "mono16";
   _thermal_image.step            = _thermal_image.width * 2;
   _thermal_image.data.resize(_thermal_image.height * _thermal_image.step);
+
+  _thermal_camera_info.header.frame_id = _thermal_image.header.frame_id;
+  _thermal_camera_info.height          = _thermal_image.height;
+  _thermal_camera_info.width           = _thermal_image.width;
 
 
   image_transport::Publisher vpub;

@@ -1,12 +1,22 @@
 <launch>
+
+<arg name="camera_node" default="optris_13120039" />
+<arg name="calibration_file" default="file://$(find optris_drivers)/calibration/optris_13120039.yaml" />
+
 <group ns="optris">
   <node name="optris_imager_node" pkg="optris_drivers" type="optris_imager_node" output="screen">
     <!-- Set configuration file of your camera here! -->
-    <param name="xmlConfig"      type="string" value="$(find optris_drivers)/config/11110043.xml"/>  
+    <param name="xmlConfig"      type="string" value="$(find optris_drivers)/config/13120039.xml"/>  
+    <param name="thermal_frame_id"      type="string" value="thermal_images"/> 
+     <!-- Camera calibration file -->
+    <param name="calibration_file"  type="string" value="$(arg calibration_file)" />
+    <param name="camera_name"  type="string" value="$(arg camera_node)" />
+    
   </node>
   
   
   <node name="optris_colorconvert_node" pkg="optris_drivers" type="optris_colorconvert_node">
+    <param name="thermal_topic"        type="string"    value="/optris/image_raw"/>
     <param name="palette"        type="int"    value="6"/>     <!-- see ImageBuilder.h for valid values -->
     <param name="paletteScaling" type="int"    value="2"/>     <!-- scaling method for color conversion, see ImageBuilder.h -->
     <param name="temperatureMin" type="double" value="20"/>    <!-- set minimum temperature for fixed scaling -->
@@ -15,10 +25,14 @@
     <!-- Uncomment the following line, if you want to use PNG compression. Use rosrun dynamic_reconfigure reconfigure_gui to pick PNG format --> 
     <!-- <param name="image_transport" type="string" value="compressed"/> -->
   </node>
- 
-  <!--  
+	
+    
    <node name="optris_binary_image_node" pkg="optris_drivers" type="optris_binary_image_node">  </node>
-  -->
+  
+   	 <node name="launch_image_proc" pkg="image_proc" type="image_proc" output="screen">
+    		<env name="ROS_NAMESPACE" value="/thermal_image_view"/>
+  	</node>
+	
   
 </group>
 </launch>

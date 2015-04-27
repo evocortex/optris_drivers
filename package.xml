@@ -36,6 +36,8 @@
   <build_depend>dynamic_reconfigure</build_depend>
   <build_depend>libudev-dev</build_depend>
   <build_depend>libirimager</build_depend>
+  <build_depend>camera_info_manager</build_depend>
+  
 
   <!-- runtime dependencies -->
   <run_depend>roscpp</run_depend>
@@ -45,5 +47,6 @@
   <run_depend>image_transport</run_depend>
   <run_depend>message_runtime</run_depend>
   <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>camera_info_manager</run_depend>
 </package>
 
