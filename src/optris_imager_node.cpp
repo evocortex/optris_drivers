@@ -67,8 +67,10 @@ optris::IRImager* _imager;
  * @param[in] image thermal image in unsigned short format, i.e., float temperature = ((float)image[i] -1000.f)/10.f)
  * @param[in] w image width
  * @param[in] h image height
+ * @param[in] timestamp the frame's timestamp
+ * @param[in] arg argument passed to process method
  */
-void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long long timestamp)
+void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long long timestamp, void* arg)
 {
   memcpy(&_thermal_image.data[0], image, w * h * sizeof(*image));
 
@@ -84,7 +86,15 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long 
   _chip_pub.publish(_chip_temperature);
 }
 
-void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h)
+/**
+ * Callback method from image processing library (called at configured frame rate in xml file)
+ * @param[in] image RGB image, if BISPECTRAL technology is available
+ * @param[in] w image width
+ * @param[in] h image height
+ * @param[in] timestamp the frame's timestamp
+ * @param[in] arg argument passed to process method
+ */
+void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h, long long timestamp, void* arg)
 {
   memcpy(&_visible_image.data[0], image, 2 * w * h * sizeof(*image));
 

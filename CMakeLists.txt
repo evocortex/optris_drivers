@@ -17,7 +17,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_genmsg()
 rosbuild_gensrv()
 
-INCLUDE_DIRECTORIES(/usr/include)
+INCLUDE_DIRECTORIES(/usr/include/libirimager)
 LINK_DIRECTORIES(/usr/lib)
 LINK_LIBRARIES(irimager irimageprocessing udev)
 
