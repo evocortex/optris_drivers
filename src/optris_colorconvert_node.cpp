@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012/2013
+ *  Copyright (c) 2012-2015
  *  Nuremberg Institute of Technology Georg Simon Ohm
  *  All rights reserved.
  *
