@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012-2014
+ *  Copyright (c) 2012-2015
  *  Technische Hochschule Nürnberg Georg Simon Ohm
  *  All rights reserved.
  *
