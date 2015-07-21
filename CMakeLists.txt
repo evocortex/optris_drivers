@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   message_generation
   dynamic_reconfigure
+  camera_info_manager
 )
 
 ## System dependencies are found with CMake's conventions
@@ -71,6 +72,7 @@ catkin_package(
   sensor_msgs
   image_transport
   message_runtime
+  camera_info_manager
  DEPENDS
   libudev-dev
   Boost
