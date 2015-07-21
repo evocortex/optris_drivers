@@ -41,6 +41,9 @@
 
 #include "libirimager/ImageBuilder.h"
 
+#include <camera_info_manager/camera_info_manager.h>
+#include <sensor_msgs/CameraInfo.h>
+
 unsigned char*                    _bufferThermal = NULL;
 unsigned char*                    _bufferVisible = NULL;
 image_transport::Publisher*       _pubThermal;
@@ -50,10 +53,14 @@ unsigned int                      _frame = 0;
 optris::ImageBuilder              _iBuilder;
 optris::EnumOptrisColoringPalette _palette;
 
+sensor_msgs::CameraInfo _camera_info;
+image_transport::CameraPublisher* _camera_info_pub = NULL;
+camera_info_manager::CameraInfoManager* _camera_info_manager = NULL;
+
 void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
 {
    // check for any subscribers to save computation time
-  if(_pubThermal->getNumSubscribers() == 0)
+  if((_pubThermal->getNumSubscribers() == 0) && (_camera_info_pub->getNumSubscribers() == 0))
      return;
 
   unsigned short* data = (unsigned short*)&image->data[0];
@@ -77,6 +84,10 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
   for(unsigned int i=0; i<image->width*image->height*3; i++) {
     img.data[i] = _bufferThermal[i];
   }
+
+  _camera_info = _camera_info_manager->getCameraInfo();
+  _camera_info.header = img.header;
+  _camera_info_pub->publish(img, _camera_info);
 
   _pubThermal->publish(img);
 }
@@ -150,6 +161,45 @@ int main (int argc, char* argv[])
 
   _pubThermal = &pubt;
   _pubVisible = &pubv;
+
+  std::string camera_name;
+  std::string camera_info_url;
+  n_.getParam("camera_name", camera_name);
+  n_.getParam("camera_info_url", camera_info_url);
+
+  // initialize CameraInfoManager, providing set_camera_info service for geometric calibration
+  // see http://wiki.ros.org/camera_info_manager
+  camera_info_manager::CameraInfoManager cinfo_manager(n);
+  _camera_info_manager = &cinfo_manager;
+
+  if (!_camera_info_manager->setCameraName(camera_name))
+  {
+    // GUID is 16 hex digits, which should be valid.
+    // If not, use it for log messages anyway.
+    ROS_WARN_STREAM("[" << camera_name
+                    << "] name not valid"
+                    << " for camera_info_manger");
+  }
+
+  if (_camera_info_manager->validateURL(camera_info_url))
+  {
+    if ( !_camera_info_manager->loadCameraInfo(camera_info_url) )
+    {
+      ROS_WARN( "camera_info_url does not contain calibration data." );
+    } 
+    else if ( !_camera_info_manager->isCalibrated() )
+    {
+      ROS_WARN( "Camera is not calibrated. Using default values." );
+    } 
+  } 
+  else
+  {
+    ROS_ERROR_STREAM_ONCE( "Calibration URL syntax is not supported by CameraInfoManager." );
+  }
+
+  // Advertise a synchronized camera raw image + info topic pair with subscriber status callbacks.
+  image_transport::CameraPublisher cinfo_pub = it.advertiseCamera("image_raw", 1);
+  _camera_info_pub = &cinfo_pub;
 
   // set to png compression
   std::string key;
