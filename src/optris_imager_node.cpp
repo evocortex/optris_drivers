@@ -226,9 +226,11 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(_imager->getMaxFramerate());
   while(ros::ok())
   {
-    _imager->getFrame(bufferRaw);
-    _imager->process(bufferRaw);
-    _imager->releaseFrame();
+    if(_imager->getFrame(bufferRaw)==optris::IRIMAGER_SUCCESS)
+    {
+      _imager->process(bufferRaw);
+      _imager->releaseFrame();
+    }
     ros::spinOnce();
     loop_rate.sleep();
   }
