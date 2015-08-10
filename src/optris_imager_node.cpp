@@ -42,6 +42,7 @@
 #include "std_msgs/Float32.h"
 #include "std_srvs/Empty.h"
 #include "optris_drivers/AutoFlag.h"
+#include "optris_drivers/SwitchTemperatureRange.h"
 #include <optris_drivers/Temperature.h>
 
 #include "libirimager/IRImager.h"
@@ -93,7 +94,6 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long 
 
   _timer_pub.publish(_optris_timer);
   _temp_pub.publish(_internal_temperature);
-
 }
 
 /**
@@ -124,6 +124,27 @@ bool onAutoFlag(optris_drivers::AutoFlag::Request &req, optris_drivers::AutoFlag
 bool onForceFlag(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
 {
   _imager->forceFlagEvent();
+  return true;
+}
+
+bool onSwitchTemperatureRange(optris_drivers::SwitchTemperatureRange::Request &req, optris_drivers::SwitchTemperatureRange::Response &res)
+{
+  switch(req.temperatureRange)
+  {
+  case 0:
+    _imager->setTempRange(optris::TM20_100);
+    break;
+  case 1:
+    _imager->setTempRange(optris::T0_250);
+    break;
+  case 2:
+    _imager->setTempRange(optris::T150_900);
+    break;
+  default:
+    std::cerr << "Wrong temperature range parameter passed, valid = [0, 1, 2]" << endl;
+    break;
+  }
+  _imager->forceFlagEvent(1000.f);
   return true;
 }
 
@@ -191,8 +212,9 @@ int main(int argc, char **argv)
 
   ros::ServiceServer sAuto  = n_.advertiseService("auto_flag",  onAutoFlag);
   ros::ServiceServer sForce = n_.advertiseService("force_flag", onForceFlag);
+  ros::ServiceServer sTemp = n_.advertiseService("switch_temperature_range", onSwitchTemperatureRange);
 
-  //advertise all the camera Temperature in a single custom message
+  // advertise all of the camera's temperatures in a single custom message
   _temp_pub = n.advertise <optris_drivers::Temperature> ("internal_temperature", 1);
   _internal_temperature.header.frame_id=_thermal_image.header.frame_id;
 

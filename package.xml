@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>optris_drivers</name>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <description>
 
      ROS nodes wrapping the binary driver for Optris thermal imager devices.
