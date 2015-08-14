@@ -118,6 +118,7 @@ void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h, long l
 bool onAutoFlag(optris_drivers::AutoFlag::Request &req, optris_drivers::AutoFlag::Response &res)
 {
   _imager->setAutoFlag(req.autoFlag);
+  res.isAutoFlagActive = _imager->getAutoFlag();
   return true;
 }
 
@@ -129,6 +130,7 @@ bool onForceFlag(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
 
 bool onSwitchTemperatureRange(optris_drivers::SwitchTemperatureRange::Request &req, optris_drivers::SwitchTemperatureRange::Response &res)
 {
+  bool validParam = true;
   switch(req.temperatureRange)
   {
   case 0:
@@ -142,9 +144,14 @@ bool onSwitchTemperatureRange(optris_drivers::SwitchTemperatureRange::Request &r
     break;
   default:
     std::cerr << "Wrong temperature range parameter passed, valid = [0, 1, 2]" << endl;
+    validParam = false;
     break;
   }
-  _imager->forceFlagEvent(1000.f);
+  if(validParam)
+  {
+    _imager->forceFlagEvent(1000.f);
+    res.success = true;
+  }
   return true;
 }
 

@@ -39,7 +39,6 @@ add_service_files(
     srv
   FILES
     AutoFlag.srv
-    ForceFlag.srv
     SwitchTemperatureRange.srv
 )
 
