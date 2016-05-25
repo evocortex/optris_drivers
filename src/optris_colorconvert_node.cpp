@@ -77,14 +77,13 @@ void onThermalDataReceive(const sensor_msgs::ImageConstPtr& image)
   img.width 	        = image->width;
   img.encoding        = "rgb8";
   img.step            = image->width*3;
-  img.data.resize(img.height*img.step);
   img.header.seq      = ++_frame;
   img.header.stamp    = ros::Time::now();
 
-  for(unsigned int i=0; i<image->width*image->height*3; i++) {
-    img.data[i] = _bufferThermal[i];
-  }
-
+  // copy the image buffer
+  img.data.resize(img.height*img.step);
+  memcpy(&img.data[0], &_bufferThermal[0], img.height * img.step * sizeof(*_bufferThermal));
+  
   _camera_info = _camera_info_manager->getCameraInfo();
   _camera_info.header = img.header;
   _camera_info_pub->publish(img, _camera_info);
