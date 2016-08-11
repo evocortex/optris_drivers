@@ -81,6 +81,9 @@ catkin_package(
 ###########
 ## Build ##
 ###########
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
 
 ## Declare a cpp executable
 add_executable(optris_imager_node       src/optris_imager_node.cpp)
