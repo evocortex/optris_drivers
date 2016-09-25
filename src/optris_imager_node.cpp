@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012-2015
+ *  Copyright (c) 2012-2016
  *  Technische Hochschule Nürnberg Georg Simon Ohm
  *  All rights reserved.
  *
@@ -45,6 +45,7 @@
 #include "optris_drivers/SwitchTemperatureRange.h"
 #include <optris_drivers/Temperature.h>
 
+#include "libirimager/IRDeviceUVC.h"
 #include "libirimager/IRImager.h"
 #include "libirimager/ImageBuilder.h"
 
@@ -73,7 +74,7 @@ optris::IRImager* _imager;
  * @param[in] timestamp the frame's timestamp
  * @param[in] arg user argument passed to process method
  */
-void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long long timestamp, void* arg)
+void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, optris::IRFrameMetadata meta, void* arg)
 {
   memcpy(&_thermal_image.data[0], image, w * h * sizeof(*image));
 
@@ -83,7 +84,7 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long 
 
   _optris_timer.header.seq = _thermal_image.header.seq;
   _optris_timer.header.stamp = _thermal_image.header.stamp;
-  _optris_timer.time_ref.fromNSec(timestamp);
+  _optris_timer.time_ref.fromNSec(meta.timestamp);
 
   _internal_temperature.header.seq=_thermal_image.header.seq;
   _internal_temperature.header.stamp = _thermal_image.header.stamp;
@@ -104,7 +105,7 @@ void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, long 
  * @param[in] timestamp the frame's timestamp
  * @param[in] arg user argument passed to process method
  */
-void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h, long long timestamp, void* arg)
+void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h, optris::IRFrameMetadata meta, void* arg)
 {
   if(_visible_pub->getNumSubscribers()==0) return;
 
@@ -134,13 +135,13 @@ bool onSwitchTemperatureRange(optris_drivers::SwitchTemperatureRange::Request &r
   switch(req.temperatureRange)
   {
   case 0:
-    _imager->setTempRange(optris::TM20_100);
+    _imager->setTempRange(-20, 100);
     break;
   case 1:
-    _imager->setTempRange(optris::T0_250);
+    _imager->setTempRange(0, 250);
     break;
   case 2:
-    _imager->setTempRange(optris::T150_900);
+    _imager->setTempRange(150, 900);
     break;
   default:
     std::cerr << "Wrong temperature range parameter passed, valid = [0, 1, 2]" << endl;
@@ -176,7 +177,21 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  _imager = new optris::IRImager(xmlConfig.c_str());
+  // Read parameters from xml file
+  optris::IRDeviceParams params;
+  if(!optris::IRDeviceParamsReader::readXML(xmlConfig.c_str(), params))
+    return -1;
+
+  // Find valid device
+  optris::IRDeviceUVC* dev = optris::IRDeviceUVC::createInstance(NULL, params.serial, params.videoFormatIndex);
+  if(!dev)
+  {
+    cout << "Error: UVC device with serial " << params.serial << " could not be found" << endl;
+    return -1;
+  }
+
+  _imager = new optris::IRImager();
+  _imager->init(&params, dev->getFrequency(), dev->getWidth(), dev->getHeight());
 
   unsigned char* bufferRaw = new unsigned char[_imager->getRawBufferSize()];
 
@@ -226,25 +241,27 @@ int main(int argc, char **argv)
   _internal_temperature.header.frame_id=_thermal_image.header.frame_id;
 
 
-  _imager->startStreaming();
+  dev->startStreaming();
 
   // loop over acquire-process-release-publish steps
   // Images are published in raw temperature format (unsigned short, see onFrame callback for details)
   ros::Rate loop_rate(_imager->getMaxFramerate());
   while(ros::ok())
   {
-    if(_imager->getFrame(bufferRaw)==optris::IRIMAGER_SUCCESS)
+    if(dev->getFrame(bufferRaw)==optris::IRIMAGER_SUCCESS)
     {
       _imager->process(bufferRaw);
-      _imager->releaseFrame();
     }
     ros::spinOnce();
     loop_rate.sleep();
   }
   ros::shutdown();
 
+  dev->stopStreaming();
+
   delete[] bufferRaw;
   delete _imager;
+  delete dev;
 
   return 0;
 }

@@ -92,9 +92,9 @@ add_executable(optris_binary_image_node src/optris_binary_image_node.cpp)
 
 ## make sure msg/srvs are generated before building the targets
 ## also, the libs must be copied before trying to build the other files
-add_dependencies(optris_imager_node irimager irimageprocessing ircore optris_drivers_generate_messages_cpp)
-add_dependencies(optris_colorconvert_node irimager irimageprocessing ircore optris_drivers_generate_messages_cpp)
-add_dependencies(optris_binary_image_node irimager irimageprocessing ircore ${PROJECT_NAME}_gencfg optris_drivers_generate_messages_cpp)
+add_dependencies(optris_imager_node optris_drivers_generate_messages_cpp)
+add_dependencies(optris_colorconvert_node optris_drivers_generate_messages_cpp)
+add_dependencies(optris_binary_image_node ${PROJECT_NAME}_gencfg optris_drivers_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(optris_imager_node
