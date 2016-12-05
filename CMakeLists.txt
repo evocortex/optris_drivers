@@ -31,6 +31,7 @@ find_package(Boost REQUIRED COMPONENTS thread)
 add_message_files(
   FILES
   Temperature.msg
+  Flag.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -86,7 +87,7 @@ include_directories(
 )
 
 ## Declare a cpp executable
-add_executable(optris_imager_node       src/optris_imager_node.cpp)
+add_executable(optris_imager_node       src/optris_imager_node.cpp src/OptrisImager.cpp)
 add_executable(optris_colorconvert_node src/optris_colorconvert_node.cpp)
 add_executable(optris_binary_image_node src/optris_binary_image_node.cpp)
 

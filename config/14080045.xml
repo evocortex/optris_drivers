@@ -1,16 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
+/usr/share/libirimager/cali/Cali-14080045.xml<?xml version="1.0" encoding="UTF-8"?>
 <imager xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<serial>14080045</serial>   <!-- Provide serial number, if you attach more than one camera -->
-	<videoformatindex>0</videoformatindex> <!-- index of the used video format (USB endpoint) -->
-	<calipath>/usr/share/libirimager/cali</calipath> <!-- optional: set path for calibration files, default: /usr/share/libirimager/cali -->
-	<fov>33</fov>
-	<temperature>
-		<min>-20</min>
-		<max>100</max>
-	</temperature>
-	<framerate>20.0</framerate> <!-- scaled down frame rate, must be less or equal than camera frame rate -->
-	<controller>1</controller>  <!-- 1=HID, 2=UVC -->
-	<outputmode>2</outputmode>  <!-- 1=Energy, 2=Temperature -->
-	<bispectral>0</bispectral>  <!-- 0=only thermal sensor, 1=bispectral technology (only PI200/PI230) -->
-	<average>0</average>        <!-- average callback frames over intermediate frames -->
+  <serial>14080045</serial>   <!-- Provide serial number, if you attach more than one camera -->
+  <videoformatindex>0</videoformatindex> <!-- index of the used video format (USB enpoint) -->
+  <formatspath>/usr/share/libirimager</formatspath>
+  <calipath>/usr/share/libirimager/cali</calipath>
+  <fov>33</fov>
+  <temperature>
+    <min>-20</min>
+    <max>100</max>
+  </temperature>
+  <framerate>32.0</framerate> <!-- scaled down frame rate, must be less or equal than camera frame rate -->
+  <controller>1</controller>  <!-- 1=HID, 2=UVC -->
+  <outputmode>2</outputmode>  <!-- 1=Energy, 2=Temperature -->
+  <bispectral>0</bispectral>  <!-- 0=only thermal sensor, 1=bispectral technology (only PI200/PI230) -->
+  <average>0</average>        <!-- average callback frames over intermediate frames -->
+  <autoflag>
+    <enable>1</enable>
+    <mininterval>15.0</mininterval>
+    <maxinterval>0.0</maxinterval>
+  </autoflag>
 </imager>
+

@@ -1,3 +1,4 @@
-uint8 temperatureRange
+int16 temperatureRangeMin
+int16 temperatureRangeMax
 ---
 bool success

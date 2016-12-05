@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012-2015
+ *  Copyright (c) 2012-2016
  *  Technische Hochschule Nürnberg Georg Simon Ohm
  *  All rights reserved.
  *
@@ -175,9 +175,7 @@ int main (int argc, char* argv[])
   {
     // GUID is 16 hex digits, which should be valid.
     // If not, use it for log messages anyway.
-    ROS_WARN_STREAM("[" << camera_name
-                    << "] name not valid"
-                    << " for camera_info_manger");
+    ROS_WARN_STREAM("[" << camera_name << "] name not valid" << " for camera_info_manger");
   }
 
   if (_camera_info_manager->validateURL(camera_info_url))
@@ -219,6 +217,6 @@ int main (int argc, char* argv[])
     loop_rate.sleep();
   }
 
-  if(_bufferThermal)	 delete [] _bufferThermal;
+  if(_bufferThermal)	delete [] _bufferThermal;
   if(_bufferVisible)  delete [] _bufferVisible;
 }

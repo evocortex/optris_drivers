@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012-2015
+ *  Copyright (c) 2012-2016
  *  Technische Hochschule Nürnberg Georg Simon Ohm
  *  All rights reserved.
  *
@@ -100,7 +100,6 @@ void callback(optris_drivers::ThresholdConfig &config, uint32_t level)
   _threshold = config.threshold;
   _invert    = config.invert;
 }
-
 
 
 /**
