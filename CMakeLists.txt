@@ -40,7 +40,7 @@ add_service_files(
     srv
   FILES
     AutoFlag.srv
-    SwitchTemperatureRange.srv
+    SetTemperatureRange.srv
 )
 
 ## Generate added messages and services with any dependencies listed here

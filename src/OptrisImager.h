@@ -11,7 +11,7 @@
 #include "std_msgs/Float32.h"
 #include "std_srvs/Empty.h"
 #include "optris_drivers/AutoFlag.h"
-#include "optris_drivers/SwitchTemperatureRange.h"
+#include "optris_drivers/SetTemperatureRange.h"
 #include "optris_drivers/Temperature.h"
 #include "optris_drivers/Flag.h"
 
@@ -97,7 +97,7 @@ public:
   /**
    * ROS service callback
    */
-  bool onSwitchTemperatureRange(SwitchTemperatureRange::Request &req, SwitchTemperatureRange::Response &res);
+  bool onSetTemperatureRange(SetTemperatureRange::Request &req, SetTemperatureRange::Response &res);
 
 private:
 

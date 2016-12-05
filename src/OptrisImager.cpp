@@ -39,7 +39,7 @@ OptrisImager::OptrisImager(optris::IRDeviceUVC* dev, optris::IRDeviceParams para
 
   _sAuto  = n.advertiseService("auto_flag",  &OptrisImager::onAutoFlag, this);
   _sForce = n.advertiseService("force_flag", &OptrisImager::onForceFlag, this);
-  _sTemp  = n.advertiseService("switch_temperature_range", &OptrisImager::onSwitchTemperatureRange, this);
+  _sTemp  = n.advertiseService("set_temperature_range", &OptrisImager::onSetTemperatureRange, this);
 
   // advertise all of the camera's temperatures in a single custom message
   _temp_pub = n.advertise<Temperature> ("internal_temperature", 1);
@@ -139,7 +139,7 @@ bool OptrisImager::onForceFlag(std_srvs::Empty::Request& req, std_srvs::Empty::R
   return true;
 }
 
-bool OptrisImager::onSwitchTemperatureRange(SwitchTemperatureRange::Request &req, SwitchTemperatureRange::Response &res)
+bool OptrisImager::onSetTemperatureRange(SetTemperatureRange::Request &req, SetTemperatureRange::Response &res)
 {
   bool validParam = _imager.setTempRange(req.temperatureRangeMin, req.temperatureRangeMax);
 
