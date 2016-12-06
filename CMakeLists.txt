@@ -41,6 +41,7 @@ add_service_files(
   FILES
     AutoFlag.srv
     TemperatureRange.srv
+    Palette.srv
 )
 
 ## Generate added messages and services with any dependencies listed here
