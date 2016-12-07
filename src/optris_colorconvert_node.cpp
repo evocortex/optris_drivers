@@ -125,14 +125,24 @@ void onVisibleDataReceive(const sensor_msgs::ImageConstPtr& image)
 
 bool onPalette(optris_drivers::Palette::Request &req, optris_drivers::Palette::Response &res)
 {
+  res.success = false;
+
   if(req.palette > 0 && req.palette < 12)
   {
     _iBuilder.setPalette((optris::EnumOptrisColoringPalette)req.palette);
     res.success = true;
   }
-  else
+
+  if(req.paletteScaling >=1 && req.paletteScaling <= 4)
   {
-    res.success = false;
+    _iBuilder.setPaletteScalingMethod((optris::EnumOptrisPaletteScalingMethod) req.paletteScaling);
+    res.success = true;
+  }
+
+  if(_iBuilder.getPaletteScalingMethod() == optris::eManual &&  req.temperatureMin < req.temperatureMax)
+  {
+    _iBuilder.setManualTemperatureRange(req.temperatureMin, req.temperatureMax);
+    res.success = true;
   }
 
   return true;
@@ -227,13 +237,7 @@ int main (int argc, char* argv[])
      ros::param::set(key, 9);
   }
 
-  // specify loop rate: a meaningful value according to your publisher configuration
-  ros::Rate loop_rate(looprate);
-  while (ros::ok())
-  {
-    ros::spinOnce();
-    loop_rate.sleep();
-  }
+  ros::spin();
 
   if(_bufferThermal)	delete [] _bufferThermal;
   if(_bufferVisible)  delete [] _bufferVisible;
