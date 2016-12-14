@@ -52,7 +52,7 @@ image_transport::Publisher*       _pubThermal;
 image_transport::Publisher*       _pubVisible;
 unsigned int                      _frame = 0;
 
-optris::ImageBuilder              _iBuilder;
+evo::ImageBuilder              _iBuilder;
 
 sensor_msgs::CameraInfo                 _camera_info;
 image_transport::CameraPublisher*       _camera_info_pub     = NULL;
@@ -129,17 +129,17 @@ bool onPalette(optris_drivers::Palette::Request &req, optris_drivers::Palette::R
 
   if(req.palette > 0 && req.palette < 12)
   {
-    _iBuilder.setPalette((optris::EnumOptrisColoringPalette)req.palette);
+    _iBuilder.setPalette((evo::EnumOptrisColoringPalette)req.palette);
     res.success = true;
   }
 
   if(req.paletteScaling >=1 && req.paletteScaling <= 4)
   {
-    _iBuilder.setPaletteScalingMethod((optris::EnumOptrisPaletteScalingMethod) req.paletteScaling);
+    _iBuilder.setPaletteScalingMethod((evo::EnumOptrisPaletteScalingMethod) req.paletteScaling);
     res.success = true;
   }
 
-  if(_iBuilder.getPaletteScalingMethod() == optris::eManual &&  req.temperatureMin < req.temperatureMax)
+  if(_iBuilder.getPaletteScalingMethod() == evo::eManual &&  req.temperatureMin < req.temperatureMax)
   {
     _iBuilder.setManualTemperatureRange(req.temperatureMin, req.temperatureMax);
     res.success = true;
@@ -158,13 +158,13 @@ int main (int argc, char* argv[])
   int palette = 6;
   n_.getParam("palette", palette);
 
-  optris::EnumOptrisPaletteScalingMethod scalingMethod = optris::eMinMax;
+  evo::EnumOptrisPaletteScalingMethod scalingMethod = evo::eMinMax;
   int sm;
   n_.getParam("paletteScaling", sm);
-  if(sm>=1 && sm <=4) scalingMethod = (optris::EnumOptrisPaletteScalingMethod) sm;
+  if(sm>=1 && sm <=4) scalingMethod = (evo::EnumOptrisPaletteScalingMethod) sm;
 
   _iBuilder.setPaletteScalingMethod(scalingMethod);
-  _iBuilder.setPalette((optris::EnumOptrisColoringPalette)palette);
+  _iBuilder.setPalette((evo::EnumOptrisColoringPalette)palette);
 
   double tMin     = 20.;
   double tMax     = 40.;

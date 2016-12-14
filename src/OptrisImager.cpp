@@ -3,7 +3,7 @@
 namespace optris_drivers
 {
 
-OptrisImager::OptrisImager(optris::IRDeviceUVC* dev, optris::IRDeviceParams params)
+OptrisImager::OptrisImager(evo::IRDeviceUVC* dev, evo::IRDeviceParams params)
 {
   _imager.init(&params, dev->getFrequency(), dev->getWidth(), dev->getHeight());
   _imager.setClient(this);
@@ -71,17 +71,17 @@ void OptrisImager::run()
 void OptrisImager::onTimer(const ros::TimerEvent& event)
 {
   int retval = _dev->getFrame(_bufferRaw);
-  if(retval==optris::IRIMAGER_SUCCESS)
+  if(retval==evo::IRIMAGER_SUCCESS)
   {
     _imager.process(_bufferRaw);
   }
-  if(retval==optris::IRIMAGER_DISCONNECTED)
+  if(retval==evo::IRIMAGER_DISCONNECTED)
   {
     ros::shutdown();
   }
 }
 
-void OptrisImager::onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, optris::IRFrameMetadata meta, void* arg)
+void OptrisImager::onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, evo::IRFrameMetadata meta, void* arg)
 {
   memcpy(&_thermal_image.data[0], image, w * h * sizeof(*image));
 
@@ -106,7 +106,7 @@ void OptrisImager::onThermalFrame(unsigned short* image, unsigned int w, unsigne
   _temp_pub.publish(_internal_temperature);
 }
 
-void OptrisImager::onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h, optris::IRFrameMetadata meta, void* arg)
+void OptrisImager::onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h, evo::IRFrameMetadata meta, void* arg)
 {
   if(_visible_pub.getNumSubscribers()==0) return;
 

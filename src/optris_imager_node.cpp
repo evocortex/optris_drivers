@@ -61,12 +61,12 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   // Read parameters from xml file
-  optris::IRDeviceParams params;
-  if(!optris::IRDeviceParamsReader::readXML(xmlConfig.c_str(), params))
+  evo::IRDeviceParams params;
+  if(!evo::IRDeviceParamsReader::readXML(xmlConfig.c_str(), params))
     return -1;
 
   // Find valid device
-  optris::IRDeviceUVC* dev = optris::IRDeviceUVC::createInstance(NULL, params.serial, params.videoFormatIndex);
+  evo::IRDeviceUVC* dev = evo::IRDeviceUVC::createInstance(NULL, params.serial, params.videoFormatIndex);
   if(!dev)
   {
     std::cout << "Error: UVC device with serial " << params.serial << " could not be found" << std::endl;

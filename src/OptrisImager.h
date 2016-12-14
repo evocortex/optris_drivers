@@ -23,7 +23,7 @@ namespace optris_drivers
  * @brief Node management class
  * @author Stefan May (Technische Hochschule Nürnberg Georg Simon Ohm)
  */
-class OptrisImager : public optris::IRImagerClient
+class OptrisImager : public evo::IRImagerClient
 {
 public:
 
@@ -32,7 +32,7 @@ public:
    * @param[in] dev UVC device instance
    * @param[in] params device parameters
    */
-  OptrisImager(optris::IRDeviceUVC* dev, optris::IRDeviceParams params);
+  OptrisImager(evo::IRDeviceUVC* dev, evo::IRDeviceParams params);
 
   /**
    * Destructor
@@ -65,7 +65,7 @@ public:
    * @param[in] meta Metadata frame
    * @param[in] arg user defined data (passed via process method)
    */
-  virtual void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, optris::IRFrameMetadata meta, void* arg);
+  virtual void onThermalFrame(unsigned short* image, unsigned int w, unsigned int h, evo::IRFrameMetadata meta, void* arg);
 
   /**
    * Callback method from image processing library (called at configured frame rate in xml file)
@@ -75,7 +75,7 @@ public:
    * @param[in] timestamp the frame's timestamp
    * @param[in] arg user defined data (passed via process method)
    */
-  virtual void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h, optris::IRFrameMetadata meta, void* arg);
+  virtual void onVisibleFrame(unsigned char* image, unsigned int w, unsigned int h, evo::IRFrameMetadata meta, void* arg);
 
   /**
    * Flag state change callback
@@ -101,9 +101,9 @@ public:
 
 private:
 
-  optris::IRImager _imager;
+  evo::IRImager _imager;
 
-  optris::IRDeviceUVC* _dev;
+  evo::IRDeviceUVC* _dev;
 
   unsigned int _img_cnt;
 
