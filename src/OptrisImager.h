@@ -82,7 +82,7 @@ public:
    * @param[in] flagstate flag state
    * @param[in] arg user defined data (passed via process method)
    */
-  virtual void onFlagStateChange(unsigned int flagstate, void* arg);
+  virtual void onFlagStateChange(evo::EnumFlagState flagstate, void* arg);
 
   /**
    * ROS service callback

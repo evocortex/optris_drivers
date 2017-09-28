@@ -117,7 +117,7 @@ void OptrisImager::onVisibleFrame(unsigned char* image, unsigned int w, unsigned
   _visible_pub.publish(_visible_image);
 }
 
-void OptrisImager::onFlagStateChange(unsigned int flagstate, void* arg)
+void OptrisImager::onFlagStateChange(evo::EnumFlagState flagstate, void* arg)
 {
   optris_drivers::Flag flag;
   flag.flag_state      = flagstate;
