@@ -4,6 +4,7 @@
 #include "libirimager/IRDeviceUVC.h"
 #include "libirimager/IRImager.h"
 #include "libirimager/IRImagerClient.h"
+#include "libirimager/IRLogger.h"
 
 #include "ros/ros.h"
 #include <image_transport/image_transport.h>

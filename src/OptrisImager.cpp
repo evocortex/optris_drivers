@@ -5,7 +5,9 @@ namespace optris_drivers
 
 OptrisImager::OptrisImager(evo::IRDeviceUVC* dev, evo::IRDeviceParams params)
 {
-  _imager.init(&params, dev->getFrequency(), dev->getWidth(), dev->getHeight());
+  evo::IRLogger::setVerbosity(evo::IRLOG_DEBUG, evo::IRLOG_OFF);
+
+  _imager.init(&params, dev->getFrequency(), dev->getWidth(), dev->getHeight(), dev->controlledViaHID());
   _imager.setClient(this);
 
   _bufferRaw = new unsigned char[_imager.getRawBufferSize()];
