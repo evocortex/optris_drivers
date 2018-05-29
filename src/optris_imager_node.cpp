@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     return -1;
 
   // Find valid device
-  evo::IRDeviceUVC* dev = evo::IRDeviceUVC::createInstance(NULL, params.serial, params.videoFormatIndex);
+  evo::IRDevice* dev = evo::IRDevice::IRCreateDevice(params, std::string(""));
   if(!dev)
   {
     std::cout << "Error: UVC device with serial " << params.serial << " could not be found" << std::endl;
