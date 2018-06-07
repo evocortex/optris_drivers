@@ -1,7 +1,7 @@
 #ifndef _OPTRISIMAGER_H_
 #define _OPTRISIMAGER_H_
 
-#include "libirimager/IRDeviceUVC.h"
+#include "libirimager/IRDevice.h"
 #include "libirimager/IRImager.h"
 #include "libirimager/IRImagerClient.h"
 #include "libirimager/IRLogger.h"
@@ -33,7 +33,7 @@ public:
    * @param[in] dev UVC device instance
    * @param[in] params device parameters
    */
-  OptrisImager(evo::IRDeviceUVC* dev, evo::IRDeviceParams params);
+  OptrisImager(evo::IRDevice* dev, evo::IRDeviceParams params);
 
   /**
    * Destructor
@@ -86,6 +86,12 @@ public:
   virtual void onFlagStateChange(evo::EnumFlagState flagstate, void* arg);
 
   /**
+    * Callback method for synchronizing data. This is the very last method to be called for each raw data set.
+    * @param[in] arg user arguments (passed to process method of IRImager class)
+    */
+  virtual void onProcessExit(void* arg);
+
+  /**
    * ROS service callback
    */
   bool onAutoFlag(AutoFlag::Request &req, AutoFlag::Response &res);
@@ -110,7 +116,7 @@ private:
 
   evo::IRImager _imager;
 
-  evo::IRDeviceUVC* _dev;
+  evo::IRDevice* _dev;
 
   unsigned int _img_cnt;
 

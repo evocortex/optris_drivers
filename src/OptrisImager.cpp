@@ -3,14 +3,15 @@
 namespace optris_drivers
 {
 
-OptrisImager::OptrisImager(evo::IRDeviceUVC* dev, evo::IRDeviceParams params)
+OptrisImager::OptrisImager(evo::IRDevice* dev, evo::IRDeviceParams params)
 {
+
   evo::IRLogger::setVerbosity(evo::IRLOG_DEBUG, evo::IRLOG_OFF);
 
   _imager.init(&params, dev->getFrequency(), dev->getWidth(), dev->getHeight(), dev->controlledViaHID());
   _imager.setClient(this);
 
-  _bufferRaw = new unsigned char[_imager.getRawBufferSize()];
+  _bufferRaw = new unsigned char[dev->getRawBufferSize()];
 
   ros::NodeHandle n;
   image_transport::ImageTransport it(n);
@@ -126,6 +127,11 @@ void OptrisImager::onFlagStateChange(evo::EnumFlagState flagstate, void* arg)
   flag.header.frame_id = _thermal_image.header.frame_id;
   flag.header.stamp    = _thermal_image.header.stamp;
   _flag_pub.publish(flag);
+}
+
+void OptrisImager::onProcessExit(void* arg)
+{
+
 }
 
 bool OptrisImager::onAutoFlag(AutoFlag::Request &req, AutoFlag::Response &res)
