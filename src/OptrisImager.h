@@ -4,6 +4,7 @@
 #include "libirimager/IRDevice.h"
 #include "libirimager/IRImager.h"
 #include "libirimager/IRImagerClient.h"
+#include "libirimager/IRLogger.h"
 
 #include "ros/ros.h"
 #include <image_transport/image_transport.h>
@@ -104,6 +105,12 @@ public:
    * ROS service callback
    */
   bool onSetTemperatureRange(TemperatureRange::Request &req, TemperatureRange::Response &res);
+
+  /**
+   * Callback method from image processing library
+   * @param[in] arg user defined data (passed via process method)
+   */
+  void onProcessExit(void* arg);
 
 private:
 

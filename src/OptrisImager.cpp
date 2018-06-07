@@ -5,6 +5,9 @@ namespace optris_drivers
 
 OptrisImager::OptrisImager(evo::IRDevice* dev, evo::IRDeviceParams params)
 {
+
+  evo::IRLogger::setVerbosity(evo::IRLOG_DEBUG, evo::IRLOG_OFF);
+
   _imager.init(&params, dev->getFrequency(), dev->getWidth(), dev->getHeight(), dev->controlledViaHID());
   _imager.setClient(this);
 
@@ -156,6 +159,11 @@ bool OptrisImager::onSetTemperatureRange(TemperatureRange::Request &req, Tempera
   res.success = validParam;
 
   return true;
+}
+
+void OptrisImager::onProcessExit(void* arg)
+{
+  ros::shutdown();
 }
 
 }
