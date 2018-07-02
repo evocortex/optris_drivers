@@ -161,9 +161,4 @@ bool OptrisImager::onSetTemperatureRange(TemperatureRange::Request &req, Tempera
   return true;
 }
 
-void OptrisImager::onProcessExit(void* arg)
-{
-  ros::shutdown();
-}
-
 }
