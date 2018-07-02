@@ -106,12 +106,6 @@ public:
    */
   bool onSetTemperatureRange(TemperatureRange::Request &req, TemperatureRange::Response &res);
 
-  /**
-   * Callback method from image processing library
-   * @param[in] arg user defined data (passed via process method)
-   */
-  void onProcessExit(void* arg);
-
 private:
 
   evo::IRImager _imager;
