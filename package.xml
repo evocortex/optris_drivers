@@ -7,7 +7,7 @@
      ROS nodes wrapping the binary driver for Optris thermal imager devices.
 
   </description>
-  <maintainer email="stefan.may@th-nuernberg.de">Stefan May(Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de)</maintainer>
+  <maintainer email="marc@hanheide.net">Marc Hanheide</maintainer>
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <license>BSD</license>
