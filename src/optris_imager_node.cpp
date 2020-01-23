@@ -39,8 +39,24 @@
 #include <sys/stat.h>
 #include "OptrisImager.h"
 
-int main(int argc, char **argv)
+
+optris_drivers::OptrisImager *optImager = NULL;
+
+
+void setFocusPosition(const std_msgs::Float32::ConstPtr& msg) 
 {
+  if (optImager == NULL) {
+    return;
+  }
+  optImager->setFocus(msg->data);
+}
+
+
+int main(int argc, char **argv) 
+{
+  // uncomment to enable debug output:
+  //evo::IRLogger::setVerbosity(evo::IRLOG_DEBUG, evo::IRLOG_OFF);
+
   ros::init(argc, argv, "optris_imager_node");
 
   // private node handle to support command line parameters for rosrun
@@ -59,6 +75,7 @@ int main(int argc, char **argv)
   }
 
   ros::NodeHandle n;
+  ros::Subscriber sub = n.subscribe("optris_focus_position", 1, setFocusPosition);
 
   // Read parameters from xml file
   evo::IRDeviceParams params;
@@ -74,8 +91,8 @@ int main(int argc, char **argv)
   }
 
   // Give control to class instance
-  optris_drivers::OptrisImager imager(dev, params);
-  imager.run();
+  optImager = new optris_drivers::OptrisImager(dev, params);
+  optImager->run();
 
   return 0;
 }
