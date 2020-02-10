@@ -22,7 +22,8 @@
   <author>Stefan May (Nuremberg Institute of Technology Georg Simon Ohm - www.th-nuernberg.de)</author>
   <author>64-Bit platform supported by Fraunhofer IPA (www.ipa.fraunhofer.de)</author>
   <author>Support for ROS hydro migration by Christopher-Eyk Hrabia (DAI-Labor, Technische Universität Berlin)</author>
-
+  <author>Support for focus motor control by Marius Montebaur (DAI-Labor, Technische Universität Berlin)</author>
+  
   <!-- Buildtool dependencies -->
   <buildtool_depend>catkin</buildtool_depend>
 
