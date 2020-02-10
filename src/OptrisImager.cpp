@@ -7,9 +7,8 @@ OptrisImager::OptrisImager(evo::IRDevice* dev, evo::IRDeviceParams params)
 {
   if (!_imager.init(&params, dev->getFrequency(), dev->getWidth(), dev->getHeight(), dev->controlledViaHID())) 
   {
-    std::cout << "\033[1;31mError:\033[0m";
-    std::cout << " Image stream not available or wrongly configured. Check connection to camera and config file." << std::endl;
-    std::cout << " Enable debug output to narrow down the problem source. See optris_imager_node.cpp" << std::endl;
+    ROS_ERROR("Image stream not available or wrongly configured. Check connection to camera and config file.");
+    ROS_ERROR("Enable debug output to narrow down the problem source. See optris_imager_node.cpp");
     ros::shutdown();
     exit(EXIT_FAILURE);
   }

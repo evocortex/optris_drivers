@@ -45,9 +45,9 @@ optris_drivers::OptrisImager *optImager = NULL;
 
 void setFocusPosition(const std_msgs::Float32::ConstPtr& msg) 
 {
-  if (optImager == NULL) {
+  if (optImager == NULL)
     return;
-  }
+  
   optImager->setFocus(msg->data);
 }
 
@@ -56,6 +56,7 @@ int main(int argc, char **argv)
 {
   // uncomment to enable debug output:
   //evo::IRLogger::setVerbosity(evo::IRLOG_DEBUG, evo::IRLOG_OFF);
+  // also uncomment #include "libirimager/IRLogger.h" from OptrisImager.h
 
   ros::init(argc, argv, "optris_imager_node");
 

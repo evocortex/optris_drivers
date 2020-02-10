@@ -87,7 +87,6 @@ catkin_package(
 ###########
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  /usr/include/libirimager/
 )
 
 ## Declare a cpp executable
