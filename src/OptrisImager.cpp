@@ -5,7 +5,14 @@ namespace optris_drivers
 
 OptrisImager::OptrisImager(evo::IRDevice* dev, evo::IRDeviceParams params)
 {
-  _imager.init(&params, dev->getFrequency(), dev->getWidth(), dev->getHeight(), dev->controlledViaHID());
+  if (!_imager.init(&params, dev->getFrequency(), dev->getWidth(), dev->getHeight(), dev->controlledViaHID())) 
+  {
+    ROS_ERROR("Image stream not available or wrongly configured. Check connection to camera and config file.");
+    ROS_ERROR("Enable debug output to narrow down the problem source. See optris_imager_node.cpp");
+    ros::shutdown();
+    exit(EXIT_FAILURE);
+  }
+
   _imager.setClient(this);
 
   _bufferRaw = new unsigned char[dev->getRawBufferSize()];
@@ -156,6 +163,13 @@ bool OptrisImager::onSetTemperatureRange(TemperatureRange::Request &req, Tempera
   res.success = validParam;
 
   return true;
+}
+
+bool OptrisImager::setFocus(float focusMotorPosition)
+{
+  float pos = std::min(100.0f, std::max(0.0f, focusMotorPosition));
+  bool state = _imager.setFocusmotorPos(pos);
+  return state;
 }
 
 }
