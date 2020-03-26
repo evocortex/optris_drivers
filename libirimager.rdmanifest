@@ -17,6 +17,9 @@ install-script: |
     pkgarch="i386"
   fi
 
+# libirimager license: BSD
+# see http://documentation.evocortex.com/en/software.html
+# and http://documentation.evocortex.com/en/freebsd.txt
   url="http://ftp.evocortex.com/libirimager-latest?arch=$pkgarch&type=deb"
   pkg="libirimager-latest_$pkgarch.deb"
   wget --no-check-certificate -O $pkg $url
