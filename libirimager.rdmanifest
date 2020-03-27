@@ -1,4 +1,4 @@
-uri: 'http://ftp.evocortex.com/libirimager_empty.tar'
+uri: "http://ftp.evocortex.com/libirimager_empty.tar"
 md5sum: 53dd389ba484a8d67dd625a5ad0e3703
 install-script: |
   #!/bin/bash
@@ -17,9 +17,6 @@ install-script: |
     pkgarch="i386"
   fi
 
-# libirimager license: BSD
-# see http://documentation.evocortex.com/en/software.html
-# and http://documentation.evocortex.com/en/freebsd.txt
   url="http://ftp.evocortex.com/libirimager-latest?arch=$pkgarch&type=deb"
   pkg="libirimager-latest_$pkgarch.deb"
   wget --no-check-certificate -O $pkg $url
