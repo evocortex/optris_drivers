@@ -3,7 +3,7 @@ optris_drivers
 
 ROS drivers for Optris thermal imagers
 
-**Installing IR Imager Direct SDK
+**Installing IR Imager Direct SDK**
 In order to successfully compile this package, the IR Imager Direct SDK for Optris cameras is needed.
 You can download it from http://ftp.evocortex.com/
 
