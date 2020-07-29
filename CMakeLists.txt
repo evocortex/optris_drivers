@@ -23,7 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS thread)
 
-#add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 #######################################
 ## Declare ROS messages and services ##
