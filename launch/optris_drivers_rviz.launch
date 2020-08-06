@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Launch optris_dirvers.launch file and starts rviz with some activated plugins to display the image -->
+<launch>
+    <arg name="rviz_config"     default="$(find optris_drivers)/rviz/optris_drivers.rviz" />
+    <include file="$(find optris_drivers)/launch/optris_drivers.launch" />
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(arg rviz_config)" />
+</launch>
